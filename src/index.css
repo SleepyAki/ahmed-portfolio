@@ -696,3 +696,61 @@ html {
 section[id], div[id] {
   scroll-margin-top: 100px;
 }
+
+/* --- DUAL BUTTON STYLES --- */
+.button-group {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+}
+.project-image {
+  width: 100%;
+  height: 180px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.visual-icon {
+  font-size: 3.5rem;
+  z-index: 2;
+  filter: drop-shadow(0 0 15px rgba(0,0,0,0.3));
+}
+
+/* Custom Gradients for each card */
+.ai-gradient {
+  background: linear-gradient(135deg, #10b981 0%, #064e3b 100%);
+}
+
+.seo-gradient {
+  background: linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%);
+}
+
+.net-gradient {
+  background: linear-gradient(135deg, #a855f7 0%, #581c87 100%);
+}
+.project-link {
+  display: inline-block;
+  margin-top: 25px;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 10px 20px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.project-link:hover {
+  background: var(--primary);
+  color: #0f172a;
+  box-shadow: 0 4px 15px var(--primary-glow);
+  transform: translateY(-2px);
+}
