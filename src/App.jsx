@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import './index.css'
 
+// --- Component Imports ---
+import Experience from './components/Experience';
+import Skills from './components/Skills';
+
 function App() {
   // --- States ---
   const [isAboutOpen, setIsAboutOpen] = useState(false);
@@ -42,6 +46,7 @@ function App() {
         <div className="logo">AZ.</div>
         <div className="links">
           <a href="#" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleAbout(); }}>About</a>
+          <a href="#experience" onClick={(e) => e.stopPropagation()}>Journey</a>
           <a href="#projects" onClick={(e) => e.stopPropagation()}>Work</a>
           <a href="#" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleContact(); }}>Contact</a>
         </div>
@@ -133,6 +138,12 @@ function App() {
           </div>
         </div>
       </header>
+
+      {/* --- EXPERIENCE TIMELINE SECTION --- */}
+      <Experience />
+
+      {/* --- SKILLS SECTION (New) --- */}
+      <Skills />
 
       {/* Projects Section */}
       <section id="projects" className="section">
