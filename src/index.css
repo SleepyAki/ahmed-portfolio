@@ -1,3 +1,9 @@
+html, body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevents unwanted horizontal scrolling */
+}
 :root {
   /* --- Color Palette (Turquoise / Emerald Theme) --- */
   --bg: #0f172a;        /* Deep Slate Black */
@@ -53,14 +59,17 @@ body {
 .navbar {
   display: flex;
   justify-content: space-between;
-  padding: 1.5rem 3rem;
+  /* Increased top/bottom padding to 1.2rem */
+  padding: 1.2rem 4rem; 
   align-items: center;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
   position: fixed;
   width: 100%;
   z-index: 100;
   top: 0;
   box-sizing: border-box;
+  background: rgba(15, 23, 42, 0.8); /* Added a slight background for better legibility */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .logo { 
@@ -69,12 +78,18 @@ body {
   color: var(--primary); 
 }
 
+.links {
+  display: flex; /* Forces links to be visible on desktop */
+  align-items: center;
+}
+
 .links a { 
   color: var(--text); 
   text-decoration: none; 
-  margin-left: 30px; 
-  font-size: 0.9rem; 
-  transition: color 0.2s;
+  margin-left: 35px; 
+  font-size: 0.95rem; 
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
 .links a:hover {
@@ -82,15 +97,36 @@ body {
 }
 
 /* --- 2. Hero Section --- */
+/* --- HERO SECTION --- */
 .hero {
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  padding-top: 60px;
-  /* Updated: Prevents the glowing blobs from causing scrollbars */
-  overflow: hidden; 
+  min-height: 700px; 
+  padding-top: 120px; 
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, var(--bg) 100%);
+}
+
+.hero h1 {
+  font-size: 4.5rem; 
+  line-height: 1.1;
+  margin-bottom: 25px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  /* Subtle text shadow to make it pop */
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+}
+
+.highlight { 
+  background: linear-gradient(to right, var(--primary), var(--secondary)); 
+  -webkit-background-clip: text; 
+  background-clip: text;
+  -webkit-text-fill-color: transparent; 
+  /* Adding a glow to the highlighted text */
+  filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.3));
 }
 
 /* --- NEW: Background Atmospheric Glow --- */
@@ -159,20 +195,22 @@ body {
 
 /* --- 3. Buttons --- */
 .cta-button {
-  background: var(--primary); 
-  color: white; 
-  padding: 12px 30px; 
-  border-radius: 30px; 
+  background: linear-gradient(135deg, var(--primary) 0%, #059669 100%); 
+  color: #fff; 
+  padding: 16px 40px; 
+  border-radius: 50px; 
   text-decoration: none;
-  font-weight: bold;
-  box-shadow: 0 4px 15px var(--primary-glow);
-  transition: transform 0.2s, box-shadow 0.2s;
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: 0 10px 30px var(--primary-glow);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: inline-block;
 }
 
 .cta-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px var(--primary-glow);
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(16, 185, 129, 0.5);
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
 }
 
 /* --- 4. Floating Animation & Widgets --- */
@@ -650,28 +688,22 @@ body {
 /* The Headings - Clean Monospace, No Blur */
 /* The Headings - Modern & Bold */
 .skill-header {
-  font-family: system-ui, -apple-system, sans-serif; /* Clean, modern font */
-  font-size: 1.8rem; /* Slightly larger */
-  font-weight: 800; /* Extra Bold */
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
   margin-bottom: 25px;
   display: inline-block;
-  letter-spacing: -0.5px; /* Tighter spacing looks more premium */
+  letter-spacing: -0.5px;
+  /* Add this line for the emerald glow */
+  text-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
 }
 
 /* Add a subtle underline to make it look finished */
-.skill-header.frontend { 
-  color: #38bdf8; 
-  border-bottom: 3px solid rgba(56, 189, 248, 0.2);
-} 
-
-.skill-header.backend { 
-  color: #a855f7; 
-  border-bottom: 3px solid rgba(168, 85, 247, 0.2);
-} 
-
+.skill-header.frontend, 
+.skill-header.backend, 
 .skill-header.tools { 
-  color: #22c55e; 
-  border-bottom: 3px solid rgba(34, 197, 94, 0.2);
+  color: var(--primary); 
+  border-bottom: 3px solid rgba(16, 185, 129, 0.2);
 }
 /* The Tag Container - Flexbox Fix */
 .skill-tags {
@@ -701,16 +733,17 @@ body {
   border-color: rgba(56, 189, 248, 0.3);
 }
 
-.skill-category:hover .skill-tag.backend {
-  background: rgba(168, 85, 247, 0.15);
-  color: #a855f7;
-  border-color: rgba(168, 85, 247, 0.3);
-}
-
+.skill-category:hover .skill-tag.frontend,
+.skill-category:hover .skill-tag.backend,
 .skill-category:hover .skill-tag.tools {
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
-  border-color: rgba(34, 197, 94, 0.3);
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--secondary); /* Teal highlight */
+  border-color: rgba(45, 212, 191, 0.3);
+}
+.skill-category:hover {
+  transform: translateY(-8px); /* Slightly more lift */
+  border-color: var(--primary); /* Emerald border on hover */
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.1);
 }
 
 /* --- SMOOTH SCROLLING --- */
@@ -779,4 +812,110 @@ section[id], div[id] {
   color: #0f172a;
   box-shadow: 0 4px 15px var(--primary-glow);
   transform: translateY(-2px);
+}
+.nav-logo {
+  /* Pushing to 85px for a high-impact brand presence */
+  height: 85px; 
+  width: auto;
+  display: block;
+  
+  /* Slight negative margin to keep the logo vertically centered with the links */
+  margin-top: -10px; 
+  margin-bottom: -5px;
+
+  /* Stronger glow to match the larger scale */
+  filter: brightness(0) invert(1) drop-shadow(0 0 15px var(--primary));
+  
+  /* Extra padding so the glow doesn't get clipped */
+  padding: 10px;
+  
+  /* Using a spring-like transition for a high-end feel */
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.nav-logo:hover {
+  transform: scale(1.08) rotate(3deg);
+  filter: brightness(0) invert(1) drop-shadow(0 0 25px var(--primary));
+}
+
+/* --- MOBILE RESPONSIVENESS --- */
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column; /* Stacks logo above links */
+    padding: 1rem;
+    height: auto;
+  }
+
+  .nav-logo {
+    height: 60px; /* Shrinks logo for mobile */
+    margin-bottom: 10px;
+    margin-top: 0;
+  }
+
+  .links {
+    display: flex; /* Keep links visible on mobile */
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-left: 0;
+  }
+
+  .links a {
+    margin-left: 0;
+    font-size: 0.85rem;
+  }
+
+  .hero {
+    padding-top: 180px; /* More space for the stacked mobile nav */
+  }
+
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+}
+
+/* --- Floating Animation Logic --- */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+}
+
+.float-slow { animation: float 6s ease-in-out infinite; }
+.float-medium { animation: float 4s ease-in-out infinite; }
+.float-fast { animation: float 3s ease-in-out infinite; }
+
+.floating-widget {
+  position: absolute;
+  background: var(--card-bg);
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  border: 1px solid #334155;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 1;
+}
+
+/* Specific Positions for your Hero page */
+.widget-1 { top: 20%; left: 10%; }
+.widget-2 { bottom: 20%; left: 15%; }
+.widget-3 { top: 25%; right: 10%; }
+.widget-4 { bottom: 25%; right: 15%; }
+
+.icon-circle {
+  width: 30px; 
+  height: 30px; 
+  border-radius: 50%; 
+  background: var(--primary); /* Updated to Emerald */
+  opacity: 0.8;
+}
+
+.fake-bar {
+  height: 8px; 
+  width: 80px; 
+  background: #475569; 
+  border-radius: 4px;
 }

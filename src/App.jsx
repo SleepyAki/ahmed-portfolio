@@ -31,7 +31,11 @@ function App() {
       ))}
 
       <nav className="navbar">
-        <div className="logo">AZ.</div>
+        {/* --- LOGO REPLACED HERE --- */}
+        <div className="logo">
+  <img src="/logo5.png" alt="Ahmed Zafar Logo" className="nav-logo" />
+</div>
+        
         <div className="links">
           <a href="#" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleAbout(); }}>About</a>
           <a href="#experience" onClick={(e) => e.stopPropagation()}>Journey</a>
@@ -77,6 +81,27 @@ function App() {
       )}
 
       <header className="hero">
+        {/* --- Floating Widgets Added Back --- */}
+        <div className="floating-widget widget-1 float-slow">
+          <span className="visual-icon" style={{fontSize: '1.2rem'}}>🤖</span>
+          <div className="fake-bar"></div>
+        </div>
+
+        <div className="floating-widget widget-2 float-medium">
+          <span className="visual-icon" style={{fontSize: '1.2rem'}}>💻</span>
+          <div className="fake-bar"></div>
+        </div>
+
+        <div className="floating-widget widget-3 float-fast">
+          <span className="visual-icon" style={{fontSize: '1.2rem'}}>🚀</span>
+          <div className="fake-bar"></div>
+        </div>
+
+        <div className="floating-widget widget-4 float-slow">
+          <span className="visual-icon" style={{fontSize: '1.2rem'}}>📈</span>
+          <div className="fake-bar"></div>
+        </div>
+
         <div className="hero-content">
           <h1>Engineering <br/><span className="highlight">Digital Workforce</span></h1>
           <p className="hero-subtext">Hi, I'm <strong>Ahmed Zafar</strong>. I build autonomous AI agents and scalable web systems.</p>
