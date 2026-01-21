@@ -4,6 +4,7 @@ import './index.css'
 // --- Component Imports ---
 import Experience from './components/Experience';
 import Skills from './components/Skills';
+import SectionWrapper from './components/SectionWrapper';
 
 function App() {
   // --- States ---
@@ -47,6 +48,7 @@ function App() {
         <div className="links">
           <a href="#" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleAbout(); }}>About</a>
           <a href="#experience" onClick={(e) => e.stopPropagation()}>Journey</a>
+          <a href="#skills" onClick={(e) => e.stopPropagation()}>Skills</a>
           <a href="#projects" onClick={(e) => e.stopPropagation()}>Work</a>
           <a href="#" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleContact(); }}>Contact</a>
         </div>
@@ -108,7 +110,7 @@ function App() {
         </div>
       )}
 
-      {/* Hero Section */}
+      {/* Hero Section (No Animation Wrapper - We want this visible immediately) */}
       <header className="hero">
         {/* Floating Animation Widgets */}
         <div className="floating-widget widget-1 float-slow">
@@ -139,82 +141,88 @@ function App() {
         </div>
       </header>
 
-      {/* --- EXPERIENCE TIMELINE SECTION --- */}
-      <Experience />
+      {/* --- EXPERIENCE TIMELINE SECTION (Animated) --- */}
+      <SectionWrapper id="experience" delay={0.1}>
+        <Experience />
+      </SectionWrapper>
 
-      {/* --- SKILLS SECTION (New) --- */}
-      <Skills />
+      {/* --- SKILLS SECTION (Animated) --- */}
+      <SectionWrapper id="skills" delay={0.1}>
+        <Skills />
+      </SectionWrapper>
 
-      {/* Projects Section */}
-      <section id="projects" className="section">
-        <div className="section-header"><h2>Selected Works</h2><div className="line"></div></div>
-        <div className="grid">
-          
-          {/* 1. AI AGENT CARD */}
-          <div className="card">
-            <div className="card-icon">🤖</div>
-            <h3>Portfolio AI Agent</h3>
-            <p>Intelligent chatbot built with Botpress ADK & React that answers questions about my resume automatically.</p>
-            <a 
-              href="https://github.com/SleepyAki/BOTdev" 
-              target="_blank" 
-              style={{
-                display: 'inline-block',
-                marginTop: '10px',
-                color: '#10b981', 
-                fontWeight: 'bold', 
-                textDecoration: 'none'
-              }}
-            >
-              View on GitHub ↗
-            </a>
-            <div className="tags"><span>Botpress</span><span>TypeScript</span><span>AI</span></div>
+      {/* --- PROJECTS SECTION (Animated) --- */}
+      <SectionWrapper id="projects" delay={0.2}>
+        <section className="section">
+          <div className="section-header"><h2>Selected Works</h2><div className="line"></div></div>
+          <div className="grid">
+            
+            {/* 1. AI AGENT CARD */}
+            <div className="card">
+              <div className="card-icon">🤖</div>
+              <h3>Portfolio AI Agent</h3>
+              <p>Intelligent chatbot built with Botpress ADK & React that answers questions about my resume automatically.</p>
+              <a 
+                href="https://github.com/SleepyAki/BOTdev" 
+                target="_blank" 
+                style={{
+                  display: 'inline-block',
+                  marginTop: '10px',
+                  color: '#10b981', 
+                  fontWeight: 'bold', 
+                  textDecoration: 'none'
+                }}
+              >
+                View on GitHub ↗
+              </a>
+              <div className="tags"><span>Botpress</span><span>TypeScript</span><span>AI</span></div>
+            </div>
+
+            {/* 2. SEO CARD */}
+            <div className="card">
+              <div className="card-icon">📈</div>
+              <h3>Google Business SEO</h3>
+              <p>Freelance service for ranking & recovering profiles. Successfully managed multiple client reinstatements.</p>
+              <a 
+                href="https://www.fiverr.com/s/EgL7E6q" 
+                target="_blank" 
+                style={{
+                  display: 'inline-block',
+                  marginTop: '10px',
+                  color: '#10b981', 
+                  fontWeight: 'bold', 
+                  textDecoration: 'none'
+                }}
+              >
+                View on Fiverr ↗
+              </a>
+              <div className="tags"><span>SEO</span><span>GMB</span><span>Freelance</span></div>
+            </div>
+
+            {/* 3. WEB APP CARD */}
+            <div className="card">
+              <div className="card-icon">💻</div>
+              <h3>Web Application (.NET)</h3>
+              <p>Enterprise-level appraisal application developed for FFC using ASP.NET Blazor and SQL.</p>
+              <a 
+                href="https://github.com/SleepyAki/AppraisalAppFFC" 
+                target="_blank" 
+                style={{
+                  display: 'inline-block',
+                  marginTop: '10px',
+                  color: '#10b981', 
+                  fontWeight: 'bold', 
+                  textDecoration: 'none'
+                }}
+              >
+                View on GitHub ↗
+              </a>
+              <div className="tags"><span>C#</span><span>.NET</span><span>SQL</span></div>
+            </div>
+
           </div>
-
-          {/* 2. SEO CARD */}
-          <div className="card">
-            <div className="card-icon">📈</div>
-            <h3>Google Business SEO</h3>
-            <p>Freelance service for ranking & recovering profiles. Successfully managed multiple client reinstatements.</p>
-            <a 
-              href="https://www.fiverr.com/s/EgL7E6q" 
-              target="_blank" 
-              style={{
-                display: 'inline-block',
-                marginTop: '10px',
-                color: '#10b981', 
-                fontWeight: 'bold', 
-                textDecoration: 'none'
-              }}
-            >
-              View on Fiverr ↗
-            </a>
-            <div className="tags"><span>SEO</span><span>GMB</span><span>Freelance</span></div>
-          </div>
-
-          {/* 3. WEB APP CARD */}
-          <div className="card">
-            <div className="card-icon">💻</div>
-            <h3>Web Application (.NET)</h3>
-            <p>Enterprise-level appraisal application developed for FFC using ASP.NET Blazor and SQL.</p>
-            <a 
-              href="https://github.com/SleepyAki/AppraisalAppFFC" 
-              target="_blank" 
-              style={{
-                display: 'inline-block',
-                marginTop: '10px',
-                color: '#10b981', 
-                fontWeight: 'bold', 
-                textDecoration: 'none'
-              }}
-            >
-              View on GitHub ↗
-            </a>
-            <div className="tags"><span>C#</span><span>.NET</span><span>SQL</span></div>
-          </div>
-
-        </div>
-      </section>
+        </section>
+      </SectionWrapper>
 
       <footer className="footer"><p>© 2026 Ahmed Zafar | Built with React + Vite</p></footer>
     </div>
