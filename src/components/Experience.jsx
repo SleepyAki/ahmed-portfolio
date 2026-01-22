@@ -5,14 +5,14 @@ const Experience = () => {
     {
       title: "Freelance GMB Specialist",
       company: "Fiverr",
-      date: "Sept 2025 - Present",
+      date: "Sept 2023 - Present",
       description: "Specializing in Google Business Profile reinstatement and optimization for global clients.",
       icon: "💼",
     },
     {
       title: "Software Intern",
       company: "Fauji Fertilizer Company (FFC)",
-      date: "Sept 2025 - Oct 2025",
+      date: "July 2025 - Sept 2025",
       description: "Developed an Appraisal Application using .NET 8 Blazor in the Information Systems Division.",
       icon: "💻",
     },
