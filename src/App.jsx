@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './index.css'
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/react"
 
 // --- Component Imports ---
 import Experience from './components/Experience';
