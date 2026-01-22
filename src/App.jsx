@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './index.css'
+import { Analytics } from "@vercel/analytics/next"
 
 // --- Component Imports ---
 import Experience from './components/Experience';
@@ -144,6 +145,7 @@ function App() {
       </SectionWrapper>
 
       <footer className="footer"><p>© 2026 Ahmed Zafar | Built with React + Vite</p></footer>
+      <Analytics />
     </div>
   )
 }
