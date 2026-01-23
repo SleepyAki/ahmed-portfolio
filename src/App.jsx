@@ -7,6 +7,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react"
 import Experience from './components/Experience';
 import Skills from './components/Skills';
 import SectionWrapper from './components/SectionWrapper';
+import AkiMoodEngine from './components/AkiMoodEngine'; // Added the Mood Engine
 
 function App() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
@@ -28,15 +29,18 @@ function App() {
 
   return (
     <div className="portfolio-container" onClick={createRipple}>
+      {/* Dynamic Background Ripples */}
       {ripples.map((ripple) => (
         <span key={ripple.id} className="ripple" style={{ left: ripple.x, top: ripple.y }} />
       ))}
 
+      {/* The Mood Engine - Controls your global CSS variables */}
+      <AkiMoodEngine />
+
       <nav className="navbar">
-        {/* --- LOGO REPLACED HERE --- */}
         <div className="logo">
-  <img src="/logo5.png" alt="Ahmed Zafar Logo" className="nav-logo" />
-</div>
+          <img src="/logo5.png" alt="Ahmed Zafar Logo" className="nav-logo" />
+        </div>
         
         <div className="links">
           <a href="#" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleAbout(); }}>About</a>
@@ -53,6 +57,7 @@ function App() {
         </div>
       </div>
 
+      {/* Modals */}
       {isAboutOpen && (
         <div className="modal-overlay" onClick={(e) => { e.stopPropagation(); toggleAbout(); }}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -83,7 +88,7 @@ function App() {
       )}
 
       <header className="hero">
-        {/* --- Floating Widgets Added Back --- */}
+        {/* Floating Widgets */}
         <div className="floating-widget widget-1 float-slow">
           <span className="visual-icon" style={{fontSize: '1.2rem'}}>🤖</span>
           <div className="fake-bar"></div>
@@ -145,7 +150,10 @@ function App() {
         </section>
       </SectionWrapper>
 
-      <footer className="footer"><p>© 2026 Ahmed Zafar | Built with React + Vite</p></footer>
+      <footer className="footer">
+        <p>© 2026 Ahmed Zafar | Built with React + Vite</p>
+      </footer>
+      
       <Analytics />
       <SpeedInsights/>
     </div>

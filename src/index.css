@@ -872,3 +872,72 @@ section[id], div[id] {
     align-items: center;
   }
 }
+
+/* ==================== */
+/* 19. MOOD ENGINE UI   */
+/* ==================== */
+.mood-engine-widget {
+  top: 15%;
+  right: 5%;
+  flex-direction: column;
+  min-width: 180px;
+  border-color: var(--primary);
+  background: rgba(30, 41, 59, 0.9);
+  backdrop-filter: blur(10px);
+}
+
+.widget-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.mood-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.mood-btn {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.mood-btn:hover {
+  transform: scale(1.2);
+}
+
+.mood-btn.emerald { background: #10b981; }
+.mood-btn.clannad { background: #ffb7c5; }
+.mood-btn.zoro { background: #1DB954; }
+
+/* ==================== */
+/* 20. SHATTER KEYFRAMES */
+/* ==================== */
+@keyframes screen-shatter {
+  0% { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); filter: brightness(1); }
+  15% { filter: brightness(4) contrast(1.2); } /* Peak Flash */
+  25% {
+    /* Irregular Shatter Pattern */
+    clip-path: polygon(
+      0% 0%, 55% 0%, 45% 45%, 0% 55%,
+      55% 0%, 100% 0%, 100% 55%, 55% 45%,
+      100% 55%, 100% 100%, 45% 100%, 55% 55%,
+      0% 55%, 45% 45%, 0% 100%
+    );
+    transform: translate(-10px, 10px) rotate(1.5deg);
+  }
+  100% { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); filter: brightness(1); transform: none; }
+}
+
+.shatter-active {
+  animation: screen-shatter 0.45s cubic-bezier(0.19, 1, 0.22, 1);
+  pointer-events: none;
+  background-color: white;
+}
