@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 
 const AkiMoodEngine = () => {
   const [currentMood, setCurrentMood] = useState('emerald');
+  const [isExpanded, setIsExpanded] = useState(false);
   const [showDangoSecret, setShowDangoSecret] = useState(false);
 
-  // Theme Definitions
   const moods = {
     emerald: {
       "--bg": "#0f172a", "--card-bg": "#1e293b", "--primary": "#10b981",
@@ -24,9 +24,7 @@ const AkiMoodEngine = () => {
     }
   };
 
-  // 1. Persistence & Secret Logic
   useEffect(() => {
-    // Load saved mood on mount
     const saved = localStorage.getItem('selectedMood');
     if (saved && moods[saved]) applyMood(saved, false);
 
@@ -40,18 +38,14 @@ const AkiMoodEngine = () => {
     return () => clearTimeout(timer);
   }, [currentMood]);
 
-  // 2. Shatter Logic
   const triggerShatter = () => {
-    const body = document.body;
-    body.classList.add('shatter-active');
-    setTimeout(() => body.classList.remove('shatter-active'), 400);
+    document.body.classList.add('shatter-active');
+    setTimeout(() => document.body.classList.remove('shatter-active'), 450);
   };
 
-  // 3. Theme Application Logic
   const applyMood = (moodKey, shouldAnimate = true) => {
     if (shouldAnimate) triggerShatter();
     
-    // Delay variable swap to mid-shatter (150ms)
     setTimeout(() => {
       const root = document.documentElement;
       const moodData = moods[moodKey];
@@ -60,57 +54,83 @@ const AkiMoodEngine = () => {
       });
       setCurrentMood(moodKey);
       localStorage.setItem('selectedMood', moodKey);
+      // Optional: Auto-collapse after selection
+      if (shouldAnimate) setIsExpanded(false);
     }, shouldAnimate ? 150 : 0);
   };
 
   return (
-    <div className="mood-engine-widget floating-widget float-medium">
-      <div className="widget-header">
-        <div className="icon-circle"></div>
-        <span className="widget-label">AKI MOOD ENGINE</span>
-      </div>
-      
+    <div className={`mood-engine-container ${isExpanded ? 'expanded' : 'collapsed'}`}>
+      <button className="main-toggle" onClick={() => setIsExpanded(!isExpanded)}>
+        {isExpanded ? '✕' : '✨'}
+      </button>
+
       <div className="mood-controls">
-        <button onClick={() => applyMood('emerald')} className="mood-btn emerald" title="Default Emerald"></button>
-        <button onClick={() => applyMood('clannad')} className="mood-btn clannad" title="Dango Mode"></button>
-        <button onClick={() => applyMood('evergarden')} className="mood-btn evergarden" title="Memory Mode"></button>
-        <button onClick={() => applyMood('gearFourth')} className="mood-btn gear-fourth" title="Haki Mode"></button>
+        <button onClick={() => applyMood('emerald')} className="mood-btn emerald" title="Emerald"></button>
+        <button onClick={() => applyMood('clannad')} className="mood-btn clannad" title="Dango"></button>
+        <button onClick={() => applyMood('evergarden')} className="mood-btn evergarden" title="Memory"></button>
+        <button onClick={() => applyMood('gearFourth')} className="mood-btn gear-fourth" title="Haki"></button>
       </div>
 
-      {showDangoSecret && (
-        <div className="dango-reveal">🍡 <span>Big Dango Family!</span></div>
+      {showDangoSecret && isExpanded && (
+        <div className="dango-reveal">🍡</div>
       )}
 
       <style jsx>{`
-        .mood-engine-widget {
+        .mood-engine-container {
           position: fixed;
-          top: 135px; right: 30px;
-          display: flex; flex-direction: column; gap: 12px;
-          min-width: 180px; z-index: 1001;
+          bottom: 30px;
+          left: 30px;
+          z-index: 9998;
+          display: flex;
+          align-items: center;
           background: rgba(30, 41, 59, 0.85);
           backdrop-filter: blur(15px);
-          padding: 18px; border-radius: 20px;
           border: 1px solid var(--primary);
+          border-radius: 50px;
+          padding: 8px;
           box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+          transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          overflow: hidden;
         }
-        .widget-header { display: flex; align-items: center; gap: 10px; }
-        .widget-label { font-size: 0.65rem; font-weight: 900; color: var(--primary); letter-spacing: 2px; }
-        .mood-controls { display: flex; justify-content: space-between; padding: 5px 5px 0; }
+
+        .collapsed { width: 50px; height: 50px; }
+        .expanded { width: 240px; height: 50px; gap: 12px; padding: 8px 15px; }
+
+        .main-toggle {
+          background: none; border: none; color: var(--primary);
+          font-size: 1.2rem; cursor: pointer; display: flex;
+          align-items: center; justify-content: center;
+          min-width: 34px; height: 34px; z-index: 2;
+        }
+
+        .mood-controls {
+          display: flex; gap: 12px; opacity: 0; transform: translateX(-20px);
+          transition: all 0.3s ease; pointer-events: none;
+        }
+
+        .expanded .mood-controls {
+          opacity: 1; transform: translateX(0); pointer-events: auto;
+        }
+
         .mood-btn {
           width: 28px; height: 28px; border-radius: 50%;
           border: 2px solid rgba(255, 255, 255, 0.1);
-          cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          cursor: pointer; transition: 0.3s ease;
         }
-        .mood-btn:hover { transform: scale(1.3) rotate(10deg); border-color: white; }
+
+        .mood-btn:hover { transform: scale(1.2); border-color: white; }
         .mood-btn.emerald { background: #10b981; }
         .mood-btn.clannad { background: #ffb7c5; }
         .mood-btn.evergarden { background: #3b82f6; }
         .mood-btn.gear-fourth { background: #ef4444; }
-        .dango-reveal {
-          margin-top: 10px; font-size: 0.7rem; color: #ffb7c5;
-          text-align: center; font-weight: bold; animation: popUp 0.5s ease;
+
+        .dango-reveal { margin-left: 5px; font-size: 1rem; }
+
+        @media (max-width: 768px) {
+          .mood-engine-container { bottom: 20px; left: 20px; }
+          .expanded { width: 220px; }
         }
-        @keyframes popUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
       `}</style>
     </div>
   );
