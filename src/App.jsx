@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './index.css'
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 // --- Component Imports ---
 import Experience from './components/Experience';
@@ -146,6 +147,7 @@ function App() {
 
       <footer className="footer"><p>© 2026 Ahmed Zafar | Built with React + Vite</p></footer>
       <Analytics />
+      <SpeedInsights/>
     </div>
   )
 }
