@@ -6,7 +6,7 @@
 // restrictions, no ad-blocker interference).
 export const PLAYLIST = [
   { src: "/audio/lofi-study.mp3", title: "Study Session", artist: "original loop" },
-  { src: "/audio/adventure-awaits.mp3", title: "Adventure Awaits", artist: "original loop" },
+  { src: "/audio/adventure-awaits.mp3", title: "Adventure Awaits", artist: "original loop, Zelda-inspired" },
   { src: "/audio/emotional-piano.mp3", title: "Emotional Piano", artist: "original loop" },
   { src: "/audio/determination.mp3", title: "Determination", artist: "original loop" },
   { src: "/audio/slice-of-life.mp3", title: "Slice of Life", artist: "original loop" },

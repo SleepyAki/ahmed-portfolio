@@ -1026,6 +1026,15 @@ section[id], div[id] {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+@media (max-width: 768px) {
+  .hotspot-label {
+    padding: 3px 8px;
+    font-size: 0.6rem;
+    gap: 3px;
+  }
+  .hotspot-icon { font-size: 0.72rem; }
+}
+
 .hotspot-label--active {
   border-color: #7dd3fc;
   box-shadow: 0 0 16px rgba(125, 211, 252, 0.5);
@@ -1223,24 +1232,30 @@ section[id], div[id] {
   user-select: none;
 }
 
-/* Landscape enforcement */
+/* Landscape suggestion - full-screen translucent tint (matches the look
+   before), but pointer-events: none is the critical fix: nothing here
+   can block clicks on whatever's underneath (that blocking, not the
+   full-screen size, was the actual original bug). Disappears once
+   rotated to landscape via the media query below. */
 .rotate-device-overlay {
   position: fixed;
   inset: 0;
-  z-index: 99999;
-  background: #05060a;
+  z-index: 50;
   display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 14px;
+  background: rgba(5, 6, 10, 0.55);
+  backdrop-filter: blur(2px);
   color: #e2e8f0;
   text-align: center;
   padding: 24px;
+  pointer-events: none;
 }
 
 .rotate-device-icon {
-  font-size: 2.4rem;
+  font-size: 2.2rem;
   animation: rotateHint 1.6s ease-in-out infinite;
 }
 
@@ -1379,7 +1394,13 @@ section[id], div[id] {
 }
 
 @media (max-width: 640px) {
-  .music-player { right: 16px; bottom: 16px; }
+  .music-player {
+    top: 50%;
+    bottom: auto;
+    right: 10px;
+    left: auto;
+    transform: translateY(-50%);
+  }
   .music-player-title, .music-player-artist { max-width: 90px; }
 }
 
@@ -1983,9 +2004,10 @@ section[id], div[id] {
 }
 
 @media (max-width: 640px) {
-  .cx-nav { padding: 14px 20px; gap: 16px; }
-  .cx-nav-links { gap: 16px; font-size: 0.72rem; }
-  .cx-nav-room { display: none; }
+  .cx-nav { padding: 12px 16px; gap: 10px; }
+  .cx-nav-links { gap: 12px; font-size: 0.68rem; }
+  .cx-nav-links a { display: none; } /* scroll-anchor shortcuts - page is still scrollable without them */
+  .cx-nav-room { display: inline-block; padding: 7px 10px; font-size: 0.68rem; white-space: nowrap; }
   .cx-hero { padding: 90px 20px 60px; }
   .cx-section { padding: 50px 20px; }
   .cx-timeline-row { grid-template-columns: 1fr; gap: 6px; }
