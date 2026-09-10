@@ -11,13 +11,16 @@ const PANEL_COLORS = ['#ffb96f', '#ffd5a1', '#9bafff', '#78d6ed', '#60c9e6'];
 // Returning to the room therefore never accumulates changes on the source GLTF.
 function prepareRoom(source) {
   const room = source.clone(true);
+  // Reuse the static model's precomputed local transforms every frame.
+  room.updateMatrixWorld(true);
   const materials = [];
   const textures = [];
   room.traverse(child => {
+    child.matrixAutoUpdate = false;
     if (!child.isMesh) return;
     child.material = child.material.clone();
     materials.push(child.material);
-    child.castShadow = !['Object_204', 'Object_206', 'Object_208', 'Object_146', 'Object_221'].includes(child.name);
+    child.castShadow = ['Object_4', 'Object_19', 'Object_23', 'Object_140', 'Object_160', 'Object_170', 'Object_184', 'Object_202', 'Object_237'].includes(child.name);
     child.receiveShadow = true;
     child.frustumCulled = !['Object_204', 'Object_146', 'Object_221'].includes(child.name);
     child.material.envMapIntensity = 0.35;
@@ -55,7 +58,7 @@ function prepareRoom(source) {
     material.emissiveIntensity = intensity;
   };
   glow('Object_184', '#ffb366', 0.12);
-  glow('Object_190', '#ffd7a0', 2.6);
+  glow('Object_190', '#ffd7a0', 0.9);
   glow('Object_4', '#50bfe0', 0.08);
   glow('Object_6', '#5ce1f0', 0.3);
   glow('Object_20', '#72b8e8', 0.5);
@@ -64,12 +67,12 @@ function prepareRoom(source) {
   if (screen) {
     screen.emissive.set('#d9eaff');
     screen.emissiveMap = screen.map;
-    screen.emissiveIntensity = 0.65;
+    screen.emissiveIntensity = 0.3;
     screen.roughness = 0.4;
   }
   PANELS.forEach((name, i) => {
     finish([name], PANEL_COLORS[i], 0.45);
-    glow(name, PANEL_COLORS[i], 1.15);
+    glow(name, PANEL_COLORS[i], 0.3);
   });
   POSTERS.forEach(name => {
     const material = room.getObjectByName(name)?.material;
@@ -96,7 +99,7 @@ export default function Room({ reducedMotion = false }) {
     if (reducedMotion) return;
     elapsed.current += Math.min(delta, 0.1);
     panels.forEach((material, i) => {
-      material.emissiveIntensity = 1.15 + Math.sin(elapsed.current * 0.55 + i * 0.7) * 0.12;
+      material.emissiveIntensity = 0.3 + Math.sin(elapsed.current * 0.55 + i * 0.7) * 0.025;
     });
   });
   useEffect(() => () => {

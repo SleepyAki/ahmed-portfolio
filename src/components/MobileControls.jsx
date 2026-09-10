@@ -1,10 +1,17 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 // Left half of the screen = move (drag direction sets a walk vector,
 // like a touch joystick anchored wherever you first touch). Right half =
 // look (drag to rotate the camera). Both are full-height zones rather
 // than a small stick, so it's comfortable to use one-handed.
 const MobileControls = ({ moveRef, lookRef, onTap, hotspotActive }) => {
+  useEffect(() => () => {
+    // These refs are the explicit input channel consumed by Player.
+    moveRef.current.x = 0;
+    moveRef.current.y = 0;
+    lookRef.current.dx = 0;
+    lookRef.current.dy = 0;
+  }, [moveRef, lookRef]);
   const moveTouchId = useRef(null);
   const moveOrigin = useRef({ x: 0, y: 0 });
   const moveMaxRadius = 60;
@@ -84,6 +91,7 @@ const MobileControls = ({ moveRef, lookRef, onTap, hotspotActive }) => {
         onTouchStart={handleMoveStart}
         onTouchMove={handleMoveMove}
         onTouchEnd={handleMoveEnd}
+        onTouchCancel={handleMoveEnd}
       >
         <span className="mobile-zone-hint">MOVE</span>
       </div>
@@ -92,6 +100,7 @@ const MobileControls = ({ moveRef, lookRef, onTap, hotspotActive }) => {
         onTouchStart={handleLookStart}
         onTouchMove={handleLookMove}
         onTouchEnd={handleLookEnd}
+        onTouchCancel={() => { lookTouchId.current = null; }}
       >
         <span className="mobile-zone-hint">LOOK / TAP</span>
       </div>

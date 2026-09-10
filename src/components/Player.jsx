@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { PointerLockControls as PointerLockControlsImpl } from "three/examples/jsm/controls/PointerLockControls.js";
 import * as THREE from "three";
@@ -12,6 +12,8 @@ const PITCH_LIMIT = Math.PI / 2 - 0.05;
 const Player = ({ locked, isMobile, mobileMoveRef, mobileLookRef }) => {
   const { camera } = useThree();
   const keys = useRef({});
+  const vectors = useMemo(() => ({ forward: new THREE.Vector3(), right: new THREE.Vector3(), move: new THREE.Vector3() }), []);
+  useEffect(() => { if (!locked) keys.current = {}; }, [locked]);
   const initialized = useRef(false);
   const yaw = useRef(SPAWN.yaw);
   const pitch = useRef(0);
@@ -29,7 +31,13 @@ const Player = ({ locked, isMobile, mobileMoveRef, mobileLookRef }) => {
 
   useEffect(() => {
     if (isMobile) return; // no physical keyboard on mobile
-    const onKeyDown = (e) => (keys.current[e.code] = true);
+    const onKeyDown = (e) => {
+      if (!document.pointerLockElement) return;
+      keys.current[e.code] = true;
+      if (e.code.startsWith('Arrow')) e.preventDefault();
+    };
+    const reset = () => { keys.current = {}; };
+    window.addEventListener('blur', reset);
     const onKeyUp = (e) => {
       keys.current[e.code] = false;
       // Debug helper: press P to log current camera position for tuning
@@ -44,6 +52,7 @@ const Player = ({ locked, isMobile, mobileMoveRef, mobileLookRef }) => {
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
     return () => {
+      window.removeEventListener("blur", reset);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
@@ -84,15 +93,15 @@ const Player = ({ locked, isMobile, mobileMoveRef, mobileLookRef }) => {
       camera.rotation.set(pitch.current, yaw.current, 0, "YXZ");
     }
 
-    const forward = new THREE.Vector3();
+    const { forward, right, move } = vectors;
     camera.getWorldDirection(forward);
     forward.y = 0;
     forward.normalize();
 
-    const right = new THREE.Vector3();
+
     right.crossVectors(forward, camera.up).normalize();
 
-    const move = new THREE.Vector3();
+    move.set(0, 0, 0);
     if (isMobile) {
       const { x, y } = mobileMoveRef.current;
       move.addScaledVector(forward, -y);
@@ -106,7 +115,7 @@ const Player = ({ locked, isMobile, mobileMoveRef, mobileLookRef }) => {
 
     if (move.lengthSq() > 1) move.normalize();
     if (move.lengthSq() > 0) {
-      move.multiplyScalar(WALK_SPEED * delta);
+      move.multiplyScalar(WALK_SPEED * Math.min(delta, 0.05));
 
       const curX = camera.position.x;
       const curZ = camera.position.z;

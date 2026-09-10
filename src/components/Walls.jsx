@@ -1,47 +1,21 @@
-import React from "react";
-import * as THREE from "three";
+import { DoubleSide } from 'three';
+import { ROOM, frontWallSections } from '../roomLayout';
 
-// The model only ships a back wall and a left wall (it's an open corner).
-// These two fill in the missing right/front walls. Positions and the
-// dark wall color were measured directly from the two existing walls in
-// room.glb so they line up flush and match visually.
-const ROOM = {
-  minX: -1.426,
-  maxX: 2.411,
-  minZ: -1.327,
-  maxZ: 2.509,
-  floorY: 0.542,
-  ceilY: 3.116,
-};
-
-const WALL_COLOR = "#344555"; // matches the refinished walls in the imported model
-
-const Walls = () => {
+const WALL_COLOR = '#344555';
+const sections = frontWallSections();
+export default function Walls() {
   const width = ROOM.maxX - ROOM.minX;
   const depth = ROOM.maxZ - ROOM.minZ;
   const height = ROOM.ceilY - ROOM.floorY;
-  const centerY = (ROOM.floorY + ROOM.ceilY) / 2;
-
-  return (
-    <group>
-      {/* Right wall (+X side) */}
-      <mesh receiveShadow position={[ROOM.maxX, centerY, (ROOM.minZ + ROOM.maxZ) / 2]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[depth, height]} />
-        <meshStandardMaterial color={WALL_COLOR} roughness={0.96} metalness={0} side={THREE.DoubleSide} />
-      </mesh>
-
-      {/* Front wall (+Z side) */}
-      <mesh receiveShadow position={[(ROOM.minX + ROOM.maxX) / 2, centerY, ROOM.maxZ]}>
-        <planeGeometry args={[width, height]} />
-        <meshStandardMaterial color={WALL_COLOR} roughness={0.96} metalness={0} side={THREE.DoubleSide} />
-      </mesh>
-      <mesh position={[(ROOM.minX + ROOM.maxX) / 2, ROOM.ceilY, (ROOM.minZ + ROOM.maxZ) / 2]} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[width, depth]} />
-        <meshStandardMaterial color="#67727b" roughness={1} side={THREE.DoubleSide} />
-      </mesh>
-    </group>
-  );
-};
-
-export default Walls;
-export { ROOM };
+  return <group>
+    <mesh receiveShadow position={[ROOM.maxX, (ROOM.floorY + ROOM.ceilY)/2, (ROOM.minZ + ROOM.maxZ)/2]} rotation={[0, Math.PI/2, 0]}>
+      <planeGeometry args={[depth, height]} /><meshStandardMaterial color={WALL_COLOR} roughness={0.96} side={DoubleSide} />
+    </mesh>
+    {sections.map((part, i) => <mesh key={i} castShadow receiveShadow position={part.position}>
+      <planeGeometry args={part.size} /><meshStandardMaterial color={WALL_COLOR} roughness={0.96} side={DoubleSide} />
+    </mesh>)}
+    <mesh position={[(ROOM.minX+ROOM.maxX)/2, ROOM.ceilY, (ROOM.minZ+ROOM.maxZ)/2]} rotation={[Math.PI/2,0,0]}>
+      <planeGeometry args={[width,depth]} /><meshStandardMaterial color="#59616f" roughness={1} side={DoubleSide} />
+    </mesh>
+  </group>;
+}

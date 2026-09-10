@@ -1,25 +1,7 @@
-import { useRef, useState } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { Billboard, Html } from '@react-three/drei';
 import * as THREE from 'three';
-
-function useInFrontOfCamera(position) {
-  const { camera } = useThree();
-  const [inFront, setInFront] = useState(true);
-  const wasInFront = useRef(true);
-  const toPoint = useRef(new THREE.Vector3());
-  const forward = useRef(new THREE.Vector3());
-  useFrame(() => {
-    toPoint.current.set(...position).sub(camera.position);
-    camera.getWorldDirection(forward.current);
-    const visible = toPoint.current.dot(forward.current) > 0;
-    if (visible !== wasInFront.current) {
-      wasInFront.current = visible;
-      setInFront(visible);
-    }
-  });
-  return inFront;
-}
 
 function Label({ hotspot, active, position }) {
   return <Html center distanceFactor={3} position={position} zIndexRange={[10, 0]}>
@@ -32,7 +14,7 @@ function Label({ hotspot, active, position }) {
 
 function OrbHotspot({ hotspot, active, reducedMotion }) {
   const ring = useRef();
-  const inFront = useInFrontOfCamera(hotspot.position);
+
   useFrame(({ clock }) => {
     if (!ring.current) return;
     ring.current.scale.setScalar((active ? 1.15 : 1) + (reducedMotion ? 0 : Math.sin(clock.elapsedTime * 1.8) * 0.04));
@@ -45,12 +27,12 @@ function OrbHotspot({ hotspot, active, reducedMotion }) {
       </mesh>
       <mesh><circleGeometry args={[0.013, 16]} /><meshBasicMaterial color="#e7faff" /></mesh>
     </Billboard>
-    {inFront && <Label hotspot={hotspot} active={active} position={[0, -0.13, 0]} />}
+    {active && <Label hotspot={hotspot} active={active} position={[0, -0.13, 0]} />}
   </group>;
 }
 
 function PosterHotspot({ hotspot, active }) {
-  const inFront = useInFrontOfCamera(hotspot.position);
+
   return <group position={hotspot.position} rotation={[0, Math.PI / 2, 0]}>
     {[
       { position: [0, 0.315, 0.024], size: [0.49, 0.008, 0.008] },
@@ -60,7 +42,7 @@ function PosterHotspot({ hotspot, active }) {
     ].map((edge, i) => <mesh key={i} position={edge.position}>
       <boxGeometry args={edge.size} /><meshBasicMaterial color={active ? '#fff0ce' : '#91bac5'} transparent opacity={active ? 0.95 : 0.45} />
     </mesh>)}
-    {inFront && <Label hotspot={hotspot} active={active} position={[0, -0.41, 0.035]} />}
+    {active && <Label hotspot={hotspot} active={active} position={[0, -0.41, 0.035]} />}
   </group>;
 }
 

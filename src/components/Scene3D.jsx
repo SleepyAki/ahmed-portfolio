@@ -1,5 +1,7 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
+import { BakeShadows } from "@react-three/drei";
+import RenderBudget from "./RenderBudget";
 import Room from "./Room";
 import StudioLighting from "./StudioLighting";
 import StudioDetails from "./StudioDetails";
@@ -31,6 +33,13 @@ const Scene3D = () => {
   const [hasEnteredOnce, setHasEnteredOnce] = useState(false);
   const [activeId, setActiveId] = useState(null);
   const [openPanel, setOpenPanel] = useState(null);
+  const [pageVisible, setPageVisible] = useState(() => !document.hidden);
+  useEffect(() => {
+    const update = () => setPageVisible(!document.hidden);
+    document.addEventListener('visibilitychange', update);
+    return () => document.removeEventListener('visibilitychange', update);
+  }, []);
+  const rendering = locked && !openPanel && pageVisible;
 
   const mobileMoveRef = useRef({ x: 0, y: 0 });
   const mobileLookRef = useRef({ dx: 0, dy: 0 });
@@ -123,13 +132,15 @@ const Scene3D = () => {
   return (
     <div className="scene3d-container">
       <Canvas
-        shadows
-        dpr={[1, isMobile ? 1.25 : 1.5]}
-        gl={{ antialias: true, toneMappingExposure: 1.05 }}
+        shadows={!isMobile}
+        frameloop={rendering ? "always" : "demand"}
+        dpr={1}
+        gl={{ antialias: false, powerPreference: "high-performance", toneMappingExposure: 0.85 }}
         camera={{ fov: 70, near: 0.05, far: 100 }}
       >
         <color attach="background" args={["#05060a"]} />
         <StudioLighting isMobile={isMobile} />
+        <RenderBudget isMobile={isMobile} active={rendering} />
 
 
         <Suspense fallback={<RoomLoader />}>
@@ -137,6 +148,7 @@ const Scene3D = () => {
           <Walls />
           <Windows />
           <StudioDetails />
+          {!isMobile && <BakeShadows />}
           <HotspotManager
             locked={locked && !openPanel}
             activeId={activeId}

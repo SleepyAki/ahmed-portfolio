@@ -1,181 +1,46 @@
-import React, { useEffect, useMemo } from "react";
-import * as THREE from "three";
-import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
-import { ROOM } from "./Walls";
+import { useTexture } from '@react-three/drei';
+import { DoubleSide, SRGBColorSpace } from 'three';
+import { ROOM, WINDOW } from '../roomLayout';
 
-RectAreaLightUniformsLib.init();
-
-// Generates an original sunset-gradient sky texture on a canvas (no
-// external images, so nothing to license) for the view "outside" the
-// window. Smooth multi-stop gradients + soft blurred cloud blobs instead
-// of hard shapes, so it reads as a photo rather than a flat graphic.
-function useSunsetTexture() {
-  return useMemo(() => {
-    const size = 1024;
-    const canvas = document.createElement("canvas");
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext("2d");
-
-    const sky = ctx.createLinearGradient(0, 0, 0, size);
-    sky.addColorStop(0, "#160f35");
-    sky.addColorStop(0.3, "#3d2560");
-    sky.addColorStop(0.52, "#a8456b");
-    sky.addColorStop(0.68, "#e2703f");
-    sky.addColorStop(0.82, "#f5a24a");
-    sky.addColorStop(1, "#ffce85");
-    ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, size, size);
-
-    // Soft blurred cloud blobs (real blur, not hard ellipses)
-    ctx.filter = "blur(28px)";
-    const cloudSpots = [
-      [0.15, 0.28, 0.28, "rgba(70,40,90,0.55)"],
-      [0.7, 0.22, 0.32, "rgba(50,30,80,0.5)"],
-      [0.35, 0.42, 0.35, "rgba(220,140,120,0.4)"],
-      [0.75, 0.5, 0.3, "rgba(230,160,110,0.4)"],
-      [0.2, 0.58, 0.3, "rgba(240,180,120,0.35)"],
-    ];
-    cloudSpots.forEach(([cx, cy, r, color]) => {
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.ellipse(size * cx, size * cy, size * r, size * r * 0.35, 0, 0, Math.PI * 2);
-      ctx.fill();
-    });
-    ctx.filter = "none";
-
-    // Sun with soft glow
-    const sunY = size * 0.66;
-    const sunGlow = ctx.createRadialGradient(size / 2, sunY, 0, size / 2, sunY, size * 0.4);
-    sunGlow.addColorStop(0, "rgba(255,248,220,0.95)");
-    sunGlow.addColorStop(0.15, "rgba(255,220,150,0.7)");
-    sunGlow.addColorStop(0.45, "rgba(255,180,110,0.3)");
-    sunGlow.addColorStop(1, "rgba(255,180,110,0)");
-    ctx.fillStyle = sunGlow;
-    ctx.fillRect(0, 0, size, size);
-    ctx.fillStyle = "#fff8e0";
-    ctx.beginPath();
-    ctx.arc(size / 2, sunY, size * 0.045, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Distant hill silhouette, blurred edge for atmospheric depth
-    ctx.filter = "blur(3px)";
-    ctx.fillStyle = "#140a24";
-    ctx.beginPath();
-    ctx.moveTo(0, size);
-    ctx.lineTo(0, size * 0.84);
-    for (let x = 0; x <= size; x += size / 16) {
-      ctx.lineTo(x, size * (0.82 + Math.sin(x * 0.015) * 0.025));
-    }
-    ctx.lineTo(size, size);
-    ctx.closePath();
-    ctx.fill();
-    ctx.filter = "none";
-
-    // Fine grain so it doesn't read as a flat vector gradient
-    // one-time procedural texture grain generated inside useMemo -
-    // Math.random here is fine since this only runs once per mount
-    const imgData = ctx.getImageData(0, 0, size, size);
-    for (let i = 0; i < imgData.data.length; i += 4) {
-      // eslint-disable-next-line react-hooks/purity
-      const n = (Math.random() - 0.5) * 8;
-      imgData.data[i] += n;
-      imgData.data[i + 1] += n;
-      imgData.data[i + 2] += n;
-    }
-    ctx.putImageData(imgData, 0, 0);
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    return texture;
-  }, []);
+export default function Windows() {
+  const sunset = useTexture('/sunset-landscape.jpg', texture => { texture.colorSpace = SRGBColorSpace; });
+  const { x, y, width: w, height: h, depth } = WINDOW;
+  const z = ROOM.maxZ;
+  return <group>
+    {/* The backdrop sits outside a real opening, behind the deep reveals. */}
+    <mesh position={[x, y + 0.06, z + 0.24]} rotation={[0, Math.PI, 0]}>
+      <planeGeometry args={[2.35, 2.35/1.5]} />
+      <meshBasicMaterial map={sunset} color="#ded3d0" toneMapped={false} />
+    </mesh>
+    {[-1, 1].map(side => <group key={side}>
+      <mesh position={[x + side*w/2, y, z + depth/2]} rotation={[0, Math.PI/2, 0]}>
+        <planeGeometry args={[depth, h]} /><meshStandardMaterial color="#5e4639" side={DoubleSide} roughness={0.85} />
+      </mesh>
+      <mesh position={[x, y + side*h/2, z + depth/2]} rotation={[Math.PI/2, 0, 0]}>
+        <planeGeometry args={[w, depth]} /><meshStandardMaterial color="#5e4639" side={DoubleSide} roughness={0.85} />
+      </mesh>
+    </group>)}
+    {[
+      [0, h/2 + 0.037, w + 0.15, 0.075],
+      [0, -h/2 - 0.037, w + 0.15, 0.075],
+      [-w/2 - 0.037, 0, 0.075, h],
+      [w/2 + 0.037, 0, 0.075, h],
+    ].map(([dx,dy,width,height],i) => <mesh key={i} castShadow receiveShadow position={[x+dx,y+dy,z-0.026]}>
+      <boxGeometry args={[width,height,0.10]} /><meshStandardMaterial color="#976e4b" roughness={0.66} />
+    </mesh>)}
+    {/* A slim asymmetric mullion leaves the sunset unobstructed. */}
+    <mesh castShadow position={[x+w*0.24,y,z+0.045]}>
+      <boxGeometry args={[0.024,h,0.042]} /><meshStandardMaterial color="#2a292d" roughness={0.5} metalness={0.15} />
+    </mesh>
+    <mesh receiveShadow position={[x,y-h/2-0.06,z-0.06]}>
+      <boxGeometry args={[w+0.24,0.065,0.32]} /><meshStandardMaterial color="#b48b62" roughness={0.8} />
+    </mesh>
+    <mesh position={[x+w*0.24-0.03,y-0.14,z+0.016]}>
+      <boxGeometry args={[0.015,0.095,0.025]} /><meshStandardMaterial color="#b09572" roughness={0.4} metalness={0.5} />
+    </mesh>
+    <Door x={1.56} wallZ={z} />
+  </group>;
 }
-
-const WINDOW_WIDTH = 0.95;
-const WINDOW_HEIGHT = 1.08;
-const WINDOW_Y = 1.7;
-const REVEAL_DEPTH = 0.22; // how far the window is recessed into the wall
-const FRAME_THICKNESS = 0.07;
-
-const Windows = () => {
-  const skyTexture = useSunsetTexture();
-  useEffect(() => () => skyTexture.dispose(), [skyTexture]);
-  const centerX = (ROOM.minX + ROOM.maxX) / 2;
-  const wallZ = ROOM.maxZ;
-  const glassZ = wallZ - REVEAL_DEPTH;
-
-  return (
-    <group>
-      {/* Recessed reveal walls (top/bottom/left/right) connecting the room
-          wall surface back to the glass, so the window reads as a real
-          opening with depth instead of a picture stuck on the wall. */}
-      <mesh position={[centerX, WINDOW_Y + WINDOW_HEIGHT / 2, wallZ - REVEAL_DEPTH / 2]} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[WINDOW_WIDTH, REVEAL_DEPTH]} />
-        <meshStandardMaterial color="#141414" roughness={0.9} side={THREE.DoubleSide} />
-      </mesh>
-      <mesh position={[centerX, WINDOW_Y - WINDOW_HEIGHT / 2, wallZ - REVEAL_DEPTH / 2]} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[WINDOW_WIDTH, REVEAL_DEPTH]} />
-        <meshStandardMaterial color="#1a1a1a" roughness={0.9} side={THREE.DoubleSide} />
-      </mesh>
-      <mesh position={[centerX - WINDOW_WIDTH / 2, WINDOW_Y, wallZ - REVEAL_DEPTH / 2]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[REVEAL_DEPTH, WINDOW_HEIGHT]} />
-        <meshStandardMaterial color="#141414" roughness={0.9} side={THREE.DoubleSide} />
-      </mesh>
-      <mesh position={[centerX + WINDOW_WIDTH / 2, WINDOW_Y, wallZ - REVEAL_DEPTH / 2]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[REVEAL_DEPTH, WINDOW_HEIGHT]} />
-        <meshStandardMaterial color="#141414" roughness={0.9} side={THREE.DoubleSide} />
-      </mesh>
-
-      {/* Glass, recessed at the back of the reveal */}
-      <mesh position={[centerX, WINDOW_Y, glassZ]}>
-        <planeGeometry args={[WINDOW_WIDTH, WINDOW_HEIGHT]} />
-        <meshBasicMaterial map={skyTexture} toneMapped={false} side={THREE.DoubleSide} />
-      </mesh>
-
-      {/* 3D frame with actual depth (boxes, not flat planes) sitting proud
-          of the wall on the room side */}
-      {[
-        [0, WINDOW_HEIGHT / 2 + FRAME_THICKNESS / 2, WINDOW_WIDTH + FRAME_THICKNESS * 2, FRAME_THICKNESS], // top
-        [0, -WINDOW_HEIGHT / 2 - FRAME_THICKNESS / 2, WINDOW_WIDTH + FRAME_THICKNESS * 2, FRAME_THICKNESS], // bottom
-        [-WINDOW_WIDTH / 2 - FRAME_THICKNESS / 2, 0, FRAME_THICKNESS, WINDOW_HEIGHT], // left
-        [WINDOW_WIDTH / 2 + FRAME_THICKNESS / 2, 0, FRAME_THICKNESS, WINDOW_HEIGHT], // right
-      ].map(([dx, dy, w, h], i) => (
-        <mesh key={i} position={[centerX + dx, WINDOW_Y + dy, wallZ - REVEAL_DEPTH / 2]}>
-          <boxGeometry args={[w, h, REVEAL_DEPTH + 0.03]} />
-          <meshStandardMaterial color="#86633f" roughness={0.6} metalness={0.15} />
-        </mesh>
-      ))}
-
-      {/* Center mullion crossbar for a more window-like read */}
-      <mesh position={[centerX, WINDOW_Y, wallZ - REVEAL_DEPTH / 2]}>
-        <boxGeometry args={[0.035, WINDOW_HEIGHT, REVEAL_DEPTH]} />
-        <meshStandardMaterial color="#86633f" roughness={0.6} />
-      </mesh>
-      <mesh position={[centerX, WINDOW_Y, wallZ - REVEAL_DEPTH / 2]}>
-        <boxGeometry args={[WINDOW_WIDTH, 0.035, REVEAL_DEPTH]} />
-        <meshStandardMaterial color="#86633f" roughness={0.6} />
-      </mesh>
-
-      {/* Sill jutting into the room */}
-      <mesh position={[centerX, WINDOW_Y - WINDOW_HEIGHT / 2 - 0.02, wallZ - REVEAL_DEPTH - 0.06]}>
-        <boxGeometry args={[WINDOW_WIDTH + 0.14, 0.04, REVEAL_DEPTH + 0.18]} />
-        <meshStandardMaterial color="#bb9567" roughness={0.7} />
-      </mesh>
-
-      {/* Light spread across the full window opening, not one glowing spot */}
-      <rectAreaLight
-        position={[centerX, WINDOW_Y, wallZ - REVEAL_DEPTH - 0.02]}
-        width={WINDOW_WIDTH}
-        height={WINDOW_HEIGHT}
-        color="#ffb877"
-        intensity={7}
-      />
-
-      {/* Door, on the other side of the window from the dresser */}
-      <Door x={centerX + WINDOW_WIDTH / 2 + FRAME_THICKNESS + DOOR_WIDTH / 2 + 0.15} wallZ={wallZ} />
-    </group>
-  );
-};
 
 const DOOR_WIDTH = 0.82;
 const DOOR_HEIGHT = 1.55;
@@ -226,5 +91,3 @@ const Door = ({ x, wallZ }) => {
     </group>
   );
 };
-
-export default Windows;
