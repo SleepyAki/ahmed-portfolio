@@ -11,7 +11,7 @@ const INTERACT_ANGLE_COS = Math.cos(THREE.MathUtils.degToRad(16));
 // from the camera's forward direction every frame (crosshair-style, like a
 // first-person game) and report whichever hotspot is both close enough and
 // within a tight cone in front of the player.
-const HotspotManager = ({ locked, activeId, onActiveChange, hidden }) => {
+const HotspotManager = ({ locked, activeId, onActiveChange, hidden, reducedMotion }) => {
   const { camera } = useThree();
   const forward = useRef(new THREE.Vector3());
   const toHotspot = useRef(new THREE.Vector3());
@@ -55,7 +55,7 @@ const HotspotManager = ({ locked, activeId, onActiveChange, hidden }) => {
   return (
     <>
       {HOTSPOTS.map((spot) => (
-        <Hotspot key={spot.id} hotspot={spot} active={spot.id === activeId} />
+        <Hotspot key={spot.id} hotspot={spot} active={spot.id === activeId} reducedMotion={reducedMotion} />
       ))}
     </>
   );

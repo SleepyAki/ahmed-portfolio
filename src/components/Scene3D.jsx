@@ -1,6 +1,9 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import Room from "./Room";
+import StudioLighting from "./StudioLighting";
+import StudioDetails from "./StudioDetails";
+import "./Room.css";
 import Walls from "./Walls";
 import Windows from "./Windows";
 import Player from "./Player";
@@ -18,6 +21,13 @@ const isTouchDevice = () =>
 const Scene3D = () => {
   const isMobile = useMemo(() => isTouchDevice(), []);
   const [locked, setLocked] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(query.matches);
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
   const [hasEnteredOnce, setHasEnteredOnce] = useState(false);
   const [activeId, setActiveId] = useState(null);
   const [openPanel, setOpenPanel] = useState(null);
@@ -99,7 +109,7 @@ const Scene3D = () => {
   useEffect(() => {
     if (isMobile) return;
     const onKeyDown = (e) => {
-      if (e.code !== "KeyC") return;
+      if (e.code !== "KeyC" || openPanel || e.target.closest?.("input, textarea, select, button, [contenteditable]")) return;
       if (document.pointerLockElement) {
         document.exitPointerLock?.();
       } else {
@@ -108,32 +118,36 @@ const Scene3D = () => {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isMobile]);
+  }, [isMobile, openPanel]);
 
   return (
     <div className="scene3d-container">
       <Canvas
-        dpr={[1, 1.5]}
+        shadows
+        dpr={[1, isMobile ? 1.25 : 1.5]}
+        gl={{ antialias: true, toneMappingExposure: 1.05 }}
         camera={{ fov: 70, near: 0.05, far: 100 }}
       >
         <color attach="background" args={["#05060a"]} />
-        <ambientLight intensity={0.08} />
-        <directionalLight position={[-1, 3.2, 2]} intensity={0.32} color="#ff9d5c" />
+        <StudioLighting isMobile={isMobile} />
+
 
         <Suspense fallback={<RoomLoader />}>
-          <Room />
+          <Room reducedMotion={reducedMotion} />
           <Walls />
           <Windows />
+          <StudioDetails />
           <HotspotManager
-            locked={locked}
+            locked={locked && !openPanel}
             activeId={activeId}
             onActiveChange={setActiveId}
-            hidden={!!openPanel}
+            hidden={!!openPanel || !locked}
+            reducedMotion={reducedMotion}
           />
         </Suspense>
 
         <Player
-          locked={locked}
+          locked={locked && !openPanel}
           isMobile={isMobile}
           mobileMoveRef={mobileMoveRef}
           mobileLookRef={mobileLookRef}

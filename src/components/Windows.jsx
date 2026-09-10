@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
 import { ROOM } from "./Walls";
@@ -91,14 +91,15 @@ function useSunsetTexture() {
   }, []);
 }
 
-const WINDOW_WIDTH = 0.65;
-const WINDOW_HEIGHT = 0.8;
+const WINDOW_WIDTH = 0.95;
+const WINDOW_HEIGHT = 1.08;
 const WINDOW_Y = 1.7;
 const REVEAL_DEPTH = 0.22; // how far the window is recessed into the wall
 const FRAME_THICKNESS = 0.07;
 
 const Windows = () => {
   const skyTexture = useSunsetTexture();
+  useEffect(() => () => skyTexture.dispose(), [skyTexture]);
   const centerX = (ROOM.minX + ROOM.maxX) / 2;
   const wallZ = ROOM.maxZ;
   const glassZ = wallZ - REVEAL_DEPTH;
@@ -141,24 +142,24 @@ const Windows = () => {
       ].map(([dx, dy, w, h], i) => (
         <mesh key={i} position={[centerX + dx, WINDOW_Y + dy, wallZ - REVEAL_DEPTH / 2]}>
           <boxGeometry args={[w, h, REVEAL_DEPTH + 0.03]} />
-          <meshStandardMaterial color="#0d0d0d" roughness={0.6} metalness={0.15} />
+          <meshStandardMaterial color="#86633f" roughness={0.6} metalness={0.15} />
         </mesh>
       ))}
 
       {/* Center mullion crossbar for a more window-like read */}
       <mesh position={[centerX, WINDOW_Y, wallZ - REVEAL_DEPTH / 2]}>
         <boxGeometry args={[0.035, WINDOW_HEIGHT, REVEAL_DEPTH]} />
-        <meshStandardMaterial color="#0d0d0d" roughness={0.6} />
+        <meshStandardMaterial color="#86633f" roughness={0.6} />
       </mesh>
       <mesh position={[centerX, WINDOW_Y, wallZ - REVEAL_DEPTH / 2]}>
         <boxGeometry args={[WINDOW_WIDTH, 0.035, REVEAL_DEPTH]} />
-        <meshStandardMaterial color="#0d0d0d" roughness={0.6} />
+        <meshStandardMaterial color="#86633f" roughness={0.6} />
       </mesh>
 
       {/* Sill jutting into the room */}
       <mesh position={[centerX, WINDOW_Y - WINDOW_HEIGHT / 2 - 0.02, wallZ - REVEAL_DEPTH - 0.06]}>
         <boxGeometry args={[WINDOW_WIDTH + 0.14, 0.04, REVEAL_DEPTH + 0.18]} />
-        <meshStandardMaterial color="#161616" roughness={0.7} />
+        <meshStandardMaterial color="#bb9567" roughness={0.7} />
       </mesh>
 
       {/* Light spread across the full window opening, not one glowing spot */}
@@ -167,7 +168,7 @@ const Windows = () => {
         width={WINDOW_WIDTH}
         height={WINDOW_HEIGHT}
         color="#ffb877"
-        intensity={30}
+        intensity={7}
       />
 
       {/* Door, on the other side of the window from the dresser */}
@@ -203,22 +204,22 @@ const Door = ({ x, wallZ }) => {
         <meshStandardMaterial
           color="#a8794a"
           emissive="#3a2410"
-          emissiveIntensity={0.9}
+          emissiveIntensity={0.08}
           roughness={0.45}
           metalness={0.05}
         />
       </mesh>
       {/* Recessed panel detail */}
-      <mesh position={[x, doorY + 0.4, doorZ + 0.031]}>
-        <boxGeometry args={[DOOR_WIDTH - 0.18, 0.75, 0.015]} />
+      <mesh position={[x, doorY + 0.34, doorZ - 0.039]}>
+        <boxGeometry args={[DOOR_WIDTH - 0.18, 0.55, 0.015]} />
         <meshStandardMaterial color="#7a5837" roughness={0.5} />
       </mesh>
-      <mesh position={[x, doorY - 0.45, doorZ + 0.031]}>
-        <boxGeometry args={[DOOR_WIDTH - 0.18, 0.85, 0.015]} />
+      <mesh position={[x, doorY - 0.34, doorZ - 0.039]}>
+        <boxGeometry args={[DOOR_WIDTH - 0.18, 0.55, 0.015]} />
         <meshStandardMaterial color="#7a5837" roughness={0.5} />
       </mesh>
       {/* Handle */}
-      <mesh position={[x + DOOR_WIDTH / 2 - 0.1, doorY, doorZ + 0.05]}>
+      <mesh position={[x + DOOR_WIDTH / 2 - 0.1, doorY, doorZ - 0.065]}>
         <sphereGeometry args={[0.03, 12, 12]} />
         <meshStandardMaterial color="#b8a06a" roughness={0.3} metalness={0.7} />
       </mesh>

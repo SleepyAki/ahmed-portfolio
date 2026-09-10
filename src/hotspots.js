@@ -65,8 +65,8 @@ export const HOTSPOTS = [
 
 // Where the player starts and which way they're facing (radians, around Y).
 export const SPAWN = {
-  position: [1.2, 1.3, 1.6],
-  yaw: Math.PI * 0.85,
+  position: [1.15, 1.6, 1.8],
+  yaw: 0.3,
 };
 
 // Soft walk boundary, inset slightly from the model's actual walls
@@ -77,5 +77,5 @@ export const ROOM_BOUNDS = {
   maxX: 1.55,
   minZ: -0.95,
   maxZ: 2.2,
-  eyeHeight: 1.3,
+  eyeHeight: 1.6,
 };

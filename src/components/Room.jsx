@@ -1,146 +1,107 @@
-import React, { useEffect } from "react";
-import { useGLTF, useEnvironment } from "@react-three/drei";
-import * as THREE from "three";
+import { useEffect, useMemo, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import { useGLTF } from '@react-three/drei';
+import * as THREE from 'three';
 
-// Node names below were identified by measuring room.glb directly (position
-// + material lookup), not guessed. Each fix clones the material for that
-// specific node before editing it, so nothing shared with other objects
-// (e.g. the lamp's material is also used by a shelf item) gets affected.
-const FIXES = {
-  bed: "Object_202", // mattress/blanket top - was flat grey
-  mirror: "Object_136", // the tall leaning panel - was flat matte white
-  pcBody: "Object_4", // PC case main body - near-black, no detail
-  pcTrim: "Object_6", // PC case side trim
-  lamp: "Object_184", // lamp shade - was pure saturated orange
-};
+const POSTERS = ['Object_182', 'Object_82', 'Object_84'];
+const PANELS = ['Object_192', 'Object_194', 'Object_196', 'Object_198', 'Object_200'];
+const PANEL_COLORS = ['#ffb96f', '#ffd5a1', '#9bafff', '#78d6ed', '#60c9e6'];
 
-const FLOOR_NODES = ["Object_221", "Object_146"]; // large floor/backdrop planes - force matte
-
-const POSTER_NODES = ["Object_182", "Object_82", "Object_84"]; // the 3 wall posters
-
-function cloneMaterial(mesh) {
-  if (!mesh.isMesh) return null;
-  const cloned = mesh.material.clone();
-  mesh.material = cloned;
-  return cloned;
+// Clone only materials and edited textures; the cached model geometry is shared.
+// Returning to the room therefore never accumulates changes on the source GLTF.
+function prepareRoom(source) {
+  const room = source.clone(true);
+  const materials = [];
+  const textures = [];
+  room.traverse(child => {
+    if (!child.isMesh) return;
+    child.material = child.material.clone();
+    materials.push(child.material);
+    child.castShadow = !['Object_204', 'Object_206', 'Object_208', 'Object_146', 'Object_221'].includes(child.name);
+    child.receiveShadow = true;
+    child.frustumCulled = !['Object_204', 'Object_146', 'Object_221'].includes(child.name);
+    child.material.envMapIntensity = 0.35;
+  });
+  const finish = (names, color, roughness = 0.7, metalness = 0) => {
+    names.forEach(name => {
+      const material = room.getObjectByName(name)?.material;
+      if (!material) return;
+      material.color.set(color);
+      material.roughness = roughness;
+      material.metalness = metalness;
+    });
+  };
+  finish(['Object_206', 'Object_208'], '#344555', 0.96);
+  finish(['Object_202'], '#397e83', 0.96);
+  finish(['Object_172', 'Object_174'], '#e3d9c5', 0.95);
+  finish(['Object_160', 'Object_170'], '#614835', 0.85);
+  finish(['Object_140', 'Object_142', 'Object_144'], '#ad8054', 0.7);
+  finish(['Object_152', 'Object_154', 'Object_156', 'Object_265'], '#293a46', 0.45, 0.35);
+  finish(['Object_237'], '#70533f', 0.85);
+  finish(['Object_239', 'Object_241', 'Object_243'], '#967251', 0.78);
+  finish(['Object_176', 'Object_178', 'Object_180'], '#be9b66', 0.4, 0.35);
+  finish(['Object_204'], '#c2a984', 0.82);
+  finish(['Object_146', 'Object_221'], '#222a34', 1);
+  finish(['Object_4'], '#283748', 0.38, 0.45);
+  finish(['Object_6', 'Object_150'], '#52728a', 0.3, 0.55);
+  finish(['Object_136'], '#d0dbe5', 0.12, 0.94);
+  const mirror = room.getObjectByName('Object_136')?.material;
+  if (mirror) mirror.envMapIntensity = 1.4;
+  finish(['Object_184', 'Object_253', 'Object_255', 'Object_257'], '#ddad6c', 0.62);
+  const glow = (name, color, intensity) => {
+    const material = room.getObjectByName(name)?.material;
+    if (!material) return;
+    material.emissive.set(color);
+    material.emissiveIntensity = intensity;
+  };
+  glow('Object_184', '#ffb366', 0.12);
+  glow('Object_190', '#ffd7a0', 2.6);
+  glow('Object_4', '#50bfe0', 0.08);
+  glow('Object_6', '#5ce1f0', 0.3);
+  glow('Object_20', '#72b8e8', 0.5);
+  glow('Object_219', '#63bed5', 0.5);
+  const screen = room.getObjectByName('Object_158')?.material;
+  if (screen) {
+    screen.emissive.set('#d9eaff');
+    screen.emissiveMap = screen.map;
+    screen.emissiveIntensity = 0.65;
+    screen.roughness = 0.4;
+  }
+  PANELS.forEach((name, i) => {
+    finish([name], PANEL_COLORS[i], 0.45);
+    glow(name, PANEL_COLORS[i], 1.15);
+  });
+  POSTERS.forEach(name => {
+    const material = room.getObjectByName(name)?.material;
+    if (!material?.map) return;
+    material.map = material.map.clone();
+    textures.push(material.map);
+    material.map.center.set(0.5, 0.5);
+    material.map.rotation = Math.PI;
+    material.map.needsUpdate = true;
+    material.emissiveMap = material.map;
+    material.emissive.set('#fff1db');
+    material.emissiveIntensity = 0.18;
+    material.roughness = 0.85;
+  });
+  return { room, materials, textures };
 }
 
-const Room = () => {
-  const { scene } = useGLTF("/room.glb");
-  // Scoped to just the mirror material below - unlike <Environment>, this
-  // does NOT set scene.environment, so it won't brighten every other
-  // material in the room via image-based lighting.
-  const mirrorEnv = useEnvironment({ preset: "sunset", resolution: 64 });
-
-  // Fixed once per loaded scene instance (guarded against StrictMode's
-  // double-invoke, since some of these edits aren't idempotent).
-  useEffect(() => {
-    if (scene.userData.fixesApplied) return;
-
-    /* eslint-disable react-hooks/immutability -- mutating a loaded GLTF
-       scene's materials in a one-time effect is the standard R3F pattern
-       for customizing an imported model (see drei/R3F docs); there's no
-       "immutable" way to recolor a mesh that doesn't involve setting a
-       property on it. */
-    scene.userData.fixesApplied = true;
-
-    scene.traverse((child) => {
-      if (child.isMesh) {
-        child.geometry.computeBoundingSphere();
-        // Very large flat meshes (the floor) can have a bounding sphere
-        // that Three.js mis-culls at grazing viewing angles - keep them
-        // always rendered rather than risk the floor vanishing.
-        const r = child.geometry.boundingSphere?.radius ?? 0;
-        child.frustumCulled = r < 5;
-      }
+export default function Room({ reducedMotion = false }) {
+  const { scene } = useGLTF('/room.glb');
+  const prepared = useMemo(() => prepareRoom(scene), [scene]);
+  const panels = useMemo(() => PANELS.map(name => prepared.room.getObjectByName(name)?.material).filter(Boolean), [prepared]);
+  const elapsed = useRef(0);
+  useFrame((_, delta) => {
+    if (reducedMotion) return;
+    elapsed.current += Math.min(delta, 0.1);
+    panels.forEach((material, i) => {
+      material.emissiveIntensity = 1.15 + Math.sin(elapsed.current * 0.55 + i * 0.7) * 0.12;
     });
-
-    // --- Bed: give the blanket actual color instead of flat grey ---
-    const bed = scene.getObjectByName(FIXES.bed);
-    if (bed) {
-      const mat = cloneMaterial(bed);
-      mat.color.setRGB(0.11, 0.32, 0.29); // deep teal bedspread
-      mat.roughness = 0.8;
-    }
-
-    // --- Mirror: swap flat white panel for an actual reflective material ---
-    const mirror = scene.getObjectByName(FIXES.mirror);
-    if (mirror) {
-      const mat = cloneMaterial(mirror);
-      mat.color.setRGB(0.85, 0.87, 0.9);
-      mat.metalness = 0.95;
-      mat.roughness = 0.12;
-      mat.envMap = mirrorEnv;
-      mat.envMapIntensity = 0.9;
-    }
-
-    // --- PC case: less flat-black, subtle cool accent ---
-    const pcBody = scene.getObjectByName(FIXES.pcBody);
-    if (pcBody) {
-      const mat = cloneMaterial(pcBody);
-      mat.color.setRGB(0.05, 0.06, 0.09);
-      mat.metalness = 0.4;
-      mat.roughness = 0.35;
-      mat.emissive = new THREE.Color(0x38bdf8);
-      mat.emissiveIntensity = 0.12;
-    }
-    const pcTrim = scene.getObjectByName(FIXES.pcTrim);
-    if (pcTrim) {
-      const mat = cloneMaterial(pcTrim);
-      mat.color.setRGB(0.15, 0.17, 0.22);
-      mat.metalness = 0.6;
-      mat.roughness = 0.25;
-    }
-
-    // --- Lamp: soften the saturated orange to a warmer, gentler glow ---
-    const lamp = scene.getObjectByName(FIXES.lamp);
-    if (lamp) {
-      const mat = cloneMaterial(lamp);
-      mat.color.setRGB(0.95, 0.72, 0.42);
-      mat.emissive = new THREE.Color(0xffb366);
-      mat.emissiveIntensity = 0.25;
-    }
-
-    // --- Floor: force fully matte regardless of source material -
-    //     was catching a hard specular highlight under the sunset light ---
-    FLOOR_NODES.forEach((name) => {
-      const node = scene.getObjectByName(name);
-      if (node && node.isMesh) {
-        const mat = cloneMaterial(node);
-        mat.roughness = 1;
-        mat.metalness = 0;
-        mat.envMapIntensity = 0;
-      }
-    });
-
-    // --- Chair: mute the neon-pink trim baked into its texture ---
-    const chair = scene.getObjectByName("Gaming Chair_37");
-    if (chair) {
-      chair.traverse((child) => {
-        if (child.isMesh) {
-          const mat = cloneMaterial(child);
-          if (mat.color) mat.color.multiplyScalar(0.82).lerp(new THREE.Color(0.55, 0.55, 0.6), 0.25);
-        }
-      });
-    }
-
-    // --- Posters: the source photos are stored upside down - flip them ---
-    POSTER_NODES.forEach((name) => {
-      const node = scene.getObjectByName(name);
-      if (node && node.isMesh && node.material.map) {
-        const mat = cloneMaterial(node);
-        const tex = mat.map;
-        tex.center.set(0.5, 0.5);
-        tex.rotation = Math.PI;
-        tex.needsUpdate = true;
-      }
-    });
-    /* eslint-enable react-hooks/immutability */
-  }, [scene, mirrorEnv]);
-
-  return <primitive object={scene} dispose={null} />;
-};
-
-useGLTF.preload("/room.glb");
-
-export default Room;
+  });
+  useEffect(() => () => {
+    prepared.materials.forEach(material => material.dispose());
+    prepared.textures.forEach(texture => texture.dispose());
+  }, [prepared]);
+  return <primitive object={prepared.room} dispose={null} />;
+}

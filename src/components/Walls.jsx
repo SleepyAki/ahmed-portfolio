@@ -14,7 +14,7 @@ const ROOM = {
   ceilY: 3.116,
 };
 
-const WALL_COLOR = "#050505"; // measured from the model's existing wall material
+const WALL_COLOR = "#344555"; // matches the refinished walls in the imported model
 
 const Walls = () => {
   const width = ROOM.maxX - ROOM.minX;
@@ -25,15 +25,19 @@ const Walls = () => {
   return (
     <group>
       {/* Right wall (+X side) */}
-      <mesh position={[ROOM.maxX, centerY, (ROOM.minZ + ROOM.maxZ) / 2]} rotation={[0, Math.PI / 2, 0]}>
+      <mesh receiveShadow position={[ROOM.maxX, centerY, (ROOM.minZ + ROOM.maxZ) / 2]} rotation={[0, Math.PI / 2, 0]}>
         <planeGeometry args={[depth, height]} />
-        <meshStandardMaterial color={WALL_COLOR} roughness={0.85} metalness={0} side={THREE.DoubleSide} />
+        <meshStandardMaterial color={WALL_COLOR} roughness={0.96} metalness={0} side={THREE.DoubleSide} />
       </mesh>
 
       {/* Front wall (+Z side) */}
-      <mesh position={[(ROOM.minX + ROOM.maxX) / 2, centerY, ROOM.maxZ]}>
+      <mesh receiveShadow position={[(ROOM.minX + ROOM.maxX) / 2, centerY, ROOM.maxZ]}>
         <planeGeometry args={[width, height]} />
-        <meshStandardMaterial color={WALL_COLOR} roughness={0.85} metalness={0} side={THREE.DoubleSide} />
+        <meshStandardMaterial color={WALL_COLOR} roughness={0.96} metalness={0} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[(ROOM.minX + ROOM.maxX) / 2, ROOM.ceilY, (ROOM.minZ + ROOM.maxZ) / 2]} rotation={[Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[width, depth]} />
+        <meshStandardMaterial color="#67727b" roughness={1} side={THREE.DoubleSide} />
       </mesh>
     </group>
   );

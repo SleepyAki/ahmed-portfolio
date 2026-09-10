@@ -1,52 +1,26 @@
-import React from "react";
-import { HOTSPOTS } from "../hotspots";
+import { useProgress } from '@react-three/drei';
+import { HOTSPOTS } from '../hotspots';
 
-const RoomHUD = ({ locked, activeId, panelOpen, hasEnteredOnce, isMobile, onEnter }) => {
-  const activeHotspot = HOTSPOTS.find((h) => h.id === activeId);
-
-  return (
-    <>
-      {locked && !panelOpen && (
-        <>
-          <div className="crosshair" data-active={!!activeHotspot} />
-          {activeHotspot && (
-            <div className="interact-prompt">
-              {isMobile ? "Tap to open " : "Click to open "}
-              <strong>{activeHotspot.label}</strong>
-            </div>
-          )}
-          {!isMobile && (
-            <div className="room-controls-hint">
-              WASD to walk · Mouse to look · Esc or C to release cursor
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Full intro splash - only ever shown once per visit */}
-      {!locked && !panelOpen && !hasEnteredOnce && (
-        <div className="room-start-overlay" onClick={onEnter} onTouchEnd={onEnter}>
-          <div className="room-start-card">
-            <h2>Step Into My Room</h2>
-            <p>
-              {isMobile
-                ? "Drag to look around, use the joystick to walk, and tap the glowing markers to learn more about me."
-                : "Walk around with WASD, look with your mouse, and click the glowing markers to learn more about me."}
-            </p>
-            <button className="cta-button">{isMobile ? "Tap to Enter" : "Click to Enter"}</button>
-          </div>
-        </div>
-      )}
-
-      {/* After the first entry, losing the cursor (desktop) never shows the
-          big splash again - just a small unobtrusive bar to resume. */}
-      {!locked && !panelOpen && hasEnteredOnce && !isMobile && (
-        <div className="room-resume-bar" onClick={onEnter}>
-          Click to resume walking
-        </div>
-      )}
-    </>
-  );
-};
-
-export default RoomHUD;
+export default function RoomHUD({ locked, activeId, panelOpen, hasEnteredOnce, isMobile, onEnter }) {
+  const activeHotspot = HOTSPOTS.find(h => h.id === activeId);
+  const { active: loading, progress } = useProgress();
+  return <>
+    {!panelOpen && <div className="studio-caption"><span>AHMED'S ROOM</span><span>A little corner of my world.</span></div>}
+    {locked && !panelOpen && <>
+      <div className="crosshair" data-active={!!activeHotspot} />
+      {activeHotspot && <div className="interact-prompt">{isMobile ? 'Tap to explore' : 'Click to explore'} <strong>{activeHotspot.label}</strong></div>}
+      {!isMobile && <div className="room-controls-hint"><span><kbd>W A S D</kbd> Walk</span><span>Mouse to look</span><span><kbd>ESC</kbd> Release cursor</span></div>}
+    </>}
+    {!locked && !panelOpen && !hasEnteredOnce && <div className="room-start-overlay">
+      <div className="room-start-card">
+        <p className="room-eyebrow">WELCOME TO MY SPACE</p>
+        <h2>Make yourself<br />at home.</h2>
+        <p>{isMobile ? 'Use the joystick to walk, drag to look around, and tap a marker to explore.' : 'Walk around, take a closer look, and discover the work behind the objects.'}</p>
+        {!isMobile && <div className="room-start-controls"><span><kbd>W A S D</kbd> Move</span><span><kbd>MOUSE</kbd> Look</span></div>}
+        <button className="room-enter-button" onClick={onEnter} disabled={loading}>{loading ? `Preparing the room… ${Math.round(progress)}%` : 'Take a look around'} <span aria-hidden="true">→</span></button>
+        <span className="room-start-note">The posters, desk, and mirror have a story to tell.</span>
+      </div>
+    </div>}
+    {!locked && !panelOpen && hasEnteredOnce && !isMobile && <button className="room-resume-bar" onClick={onEnter}>Resume exploring <span aria-hidden="true">→</span></button>}
+  </>;
+}
