@@ -52,7 +52,7 @@ const MusicPlayer = () => {
   return (
     <div className={`music-player ${expanded ? "music-player--expanded" : ""}`}>
       <audio
-        ref={audioRef}
+        ref={audioRef} preload="none"
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         onEnded={next}

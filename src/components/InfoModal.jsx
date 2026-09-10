@@ -1,8 +1,20 @@
-import React from "react";
+import { useEffect, useRef } from "react";
 import { EXPERIENCE, SKILLS, PROJECTS, CONTACT, ABOUT_TEXT } from "../panels";
 import MiniGame from "./MiniGame";
 
 const InfoModal = ({ panelId, onClose }) => {
+  const dialogRef = useRef(null);
+  useEffect(() => {
+    if (!panelId || !dialogRef.current) return;
+    const dialog = dialogRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    dialog.showModal();
+    return () => {
+      dialog.close();
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [panelId]);
   if (!panelId) return null;
 
   const renderBody = () => {
@@ -10,7 +22,7 @@ const InfoModal = ({ panelId, onClose }) => {
       case "about":
         return (
           <>
-            <h2>About Me</h2>
+            <h2 id="info-modal-title">About Me</h2>
             <div className="modal-body">
               {ABOUT_TEXT.map((line, i) => (
                 <p key={i}>{line}</p>
@@ -22,7 +34,7 @@ const InfoModal = ({ panelId, onClose }) => {
       case "experience":
         return (
           <>
-            <h2>My Journey</h2>
+            <h2 id="info-modal-title">My Journey</h2>
             <div className="modal-body">
               {EXPERIENCE.map((exp, i) => (
                 <div key={i} className="modal-timeline-item">
@@ -49,7 +61,7 @@ const InfoModal = ({ panelId, onClose }) => {
 
         return (
           <>
-            <h2>Technical Proficiency</h2>
+            <h2 id="info-modal-title">Technical Proficiency</h2>
             <div className="modal-body skills-grid">
               {Object.entries(SKILLS).map(([category, list]) => (
                 <div className="skill-category" key={category}>
@@ -71,7 +83,7 @@ const InfoModal = ({ panelId, onClose }) => {
       case "projects":
         return (
           <>
-            <h2>Selected Works</h2>
+            <h2 id="info-modal-title">Selected Works</h2>
             <div className="modal-body grid">
               {PROJECTS.map((proj, i) => (
                 <div className="card" key={i}>
@@ -97,7 +109,7 @@ const InfoModal = ({ panelId, onClose }) => {
       case "game":
         return (
           <>
-            <h2>Take a Break</h2>
+            <h2 id="info-modal-title">Take a Break</h2>
             <MiniGame />
           </>
         );
@@ -105,7 +117,7 @@ const InfoModal = ({ panelId, onClose }) => {
       case "contact":
         return (
           <>
-            <h2>Let's Connect</h2>
+            <h2 id="info-modal-title">Let's Connect</h2>
             <div className="contact-links">
               {CONTACT.map((c, i) => (
                 <a key={i} href={c.href} target="_blank" rel="noreferrer" className="contact-btn">
@@ -122,14 +134,14 @@ const InfoModal = ({ panelId, onClose }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <dialog ref={dialogRef} className="modal-overlay" aria-labelledby="info-modal-title" onCancel={onClose} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="close-btn" onClick={onClose}>
+        <button className="close-btn" onClick={onClose} aria-label="Close dialog" autoFocus>
           &times;
         </button>
         {renderBody()}
       </div>
-    </div>
+    </dialog>
   );
 };
 

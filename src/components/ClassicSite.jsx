@@ -1,137 +1,67 @@
-import React, { useState } from "react";
-import { EXPERIENCE, SKILLS, PROJECTS } from "../panels";
-import InfoModal from "./InfoModal";
-import HeroAccent from "./HeroAccent";
-import Reveal from "./Reveal";
+import { useState } from 'react';
+import { EXPERIENCE, SKILLS, PROJECTS, CONTACT } from '../panels';
+import InfoModal from './InfoModal';
+import './Portfolio.css';
 
-const CATEGORY_LABELS = { ai_tools: "AI & Tools", graphics_3d: "3D & Graphics" };
-const labelFor = (category) => CATEGORY_LABELS[category] || category[0].toUpperCase() + category.slice(1);
+const labels = { frontend: 'Frontend', backend: 'Backend', graphics_3d: '3D & graphics', ai_tools: 'AI & tools' };
+const projectTypes = ['AI DEVELOPMENT', 'LOCAL SEARCH', 'WEB APPLICATION'];
 
-// Cursor-follow spotlight on hoverable tiles - CSS custom properties
-// updated on pointer move, no extra libraries.
-const spotlight = (e) => {
-  const rect = e.currentTarget.getBoundingClientRect();
-  e.currentTarget.style.setProperty("--mx", `${e.clientX - rect.left}px`);
-  e.currentTarget.style.setProperty("--my", `${e.clientY - rect.top}px`);
-};
-
-const ClassicSite = ({ onEnterRoom }) => {
+export default function ClassicSite({ onEnterRoom }) {
   const [panel, setPanel] = useState(null);
-
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
-    <div className="cx">
-      <div className="cx-bg" />
-
-      <nav className="cx-nav">
-        {/* logo6.png is a black monogram - inverted + given a teal glow
-            below to read against the dark navbar. */}
-        <div className="cx-logo-frame">
-          <img src="/logo6.png" alt="Ahmed Zafar" className="cx-nav-logo" />
-        </div>
-        <div className="cx-nav-links">
-          <a href="#experience">experience</a>
-          <a href="#skills">skills</a>
-          <a href="#projects">projects</a>
-          <button onClick={() => setPanel("about")}>about</button>
-          <button onClick={() => setPanel("contact")}>contact</button>
-        </div>
-        <button className="cx-nav-room" onClick={onEnterRoom}>enter the room →</button>
-      </nav>
-
-      <header className="cx-hero">
-        <div className="cx-hero-text">
-          <div className="cx-hero-eyebrow">
-            <span className="cx-prompt">ahmed@sycora</span>
-            <span className="cx-prompt-dim">:~$</span> whoami
-          </div>
-          <h1 className="cx-hero-name">Ahmed Zafar</h1>
-          <p className="cx-hero-role">
-            CS student · freelance GMB specialist · AI agent developer · co-founder, <a href="https://sycora.dev" target="_blank" rel="noreferrer">Sycora</a>
-          </p>
-          <div className="cx-hero-actions">
-            <a href="#projects" className="cx-btn cx-btn-primary">see the work</a>
-            <button className="cx-btn" onClick={() => setPanel("about")}>about me</button>
-          </div>
-        </div>
-        <div className="cx-hero-visual">
-          <HeroAccent />
-        </div>
+    <div className="portfolio" id="top">
+      <a className="skip-link" href="#main">Skip to content</a>
+      <header className="portfolio-header">
+        <a className="brand" href="#top" aria-label="Ahmed Zafar, home"><img src="/logo6.png" alt="" width="38" height="38" /><span>ahmed<span className="accent">.</span></span></a>
+        <button className="menu-toggle" aria-expanded={menuOpen} aria-controls="main-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? 'Close ×' : 'Menu +'}</button>
+        <nav id="main-nav" className={`portfolio-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation" onClick={() => setMenuOpen(false)} onKeyDown={e => { if (e.key === 'Escape') setMenuOpen(false); }}>
+          <a href="#projects">Work</a><a href="#about">About</a><a href="#experience">Experience</a><a href="#contact">Contact ↗</a>
+        </nav>
+        <button className="room-link" onClick={onEnterRoom}>Explore my room ↗</button>
       </header>
-
-      <Reveal>
-        <section className="cx-section" id="experience">
-          <h2 className="cx-heading"><span className="cx-heading-num">01</span> Experience</h2>
-          <div className="cx-timeline">
-            {EXPERIENCE.map((exp, i) => (
-              <div className="cx-timeline-row" key={i}>
-                <div className="cx-timeline-date">{exp.date}</div>
-                <div className="cx-timeline-body">
-                  <h3>{exp.title}</h3>
-                  <p className="cx-timeline-company">{exp.company}</p>
-                  <p className="cx-timeline-desc">{exp.description}</p>
-                </div>
-              </div>
-            ))}
+      <main id="main">
+        <section className="portfolio-hero wrap" aria-labelledby="hero-title">
+          <div className="hero-copy">
+            <p className="eyebrow"><span className="status-dot" /> DEVELOPER · BUILDER · CURIOUS HUMAN</p>
+            <h1 id="hero-title">Ahmed<br /><span>Zafar<span className="accent">.</span></span></h1>
+            <p className="hero-statement">Useful software.<br />A little imagination.</p>
+            <p className="hero-description">I build web applications and AI agents, help businesses get discovered, and co-found <a href="https://sycora.dev" target="_blank" rel="noreferrer">Sycora ↗</a> while studying computer science.</p>
+            <div className="hero-actions"><a className="p-button primary" href="#projects">Explore my work <span aria-hidden="true">↓</span></a><a className="p-button" href="#contact">Let's talk <span aria-hidden="true">↗</span></a></div>
           </div>
+          <aside className="identity-card" aria-label="A little more about me">
+            <div className="identity-top"><span>THE PERSON BEHIND THE CODE</span><span aria-hidden="true">↗</span></div>
+            <div className="identity-mark"><img src="/logo6.png" alt="Ahmed Zafar monogram" width="220" height="220" /></div>
+            <div className="identity-name"><span>SleepyAki</span><span className="identity-handle">@github</span></div>
+            <div className="identity-details"><span>CS student at NUML</span><span>Co-founder at Sycora</span></div>
+            <button className="identity-room" onClick={onEnterRoom}><span><small>A DIFFERENT WAY TO EXPLORE</small>Step inside my 3D room</span><span aria-hidden="true">↗</span></button>
+          </aside>
+          <div className="hero-bottom"><span>WEB DEVELOPMENT / AI AGENTS / 3D EXPERIENCES</span><a href="#projects">SCROLL TO EXPLORE ↓</a></div>
         </section>
-      </Reveal>
-
-      <Reveal>
-        <section className="cx-section" id="skills">
-          <h2 className="cx-heading"><span className="cx-heading-num">02</span> Skills</h2>
-          <div className="cx-skills">
-            {Object.entries(SKILLS).map(([category, list]) => (
-              <div className="cx-skill-group" key={category} onMouseMove={spotlight}>
-                <h3>{labelFor(category)}</h3>
-                <div className="cx-skill-tags">
-                  {list.map((skill, i) => (
-                    <span key={i}>{skill}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+        <section className="portfolio-section wrap" id="projects" aria-labelledby="work-title">
+          <div className="section-heading"><div><p className="eyebrow">01 / SELECTED WORK</p><h2 id="work-title">Ideas put to work<span className="accent">.</span></h2></div><a className="text-link" href="https://github.com/SleepyAki" target="_blank" rel="noreferrer">More on GitHub ↗</a></div>
+          <div className="project-grid">{PROJECTS.map((project, index) => <a className={`work-card work-card-${index}`} href={project.link} target="_blank" rel="noreferrer" key={project.title}>
+            <div className="work-card-top"><span className="work-number">0{index + 1}</span><span className="work-arrow" aria-hidden="true">↗</span></div>
+            <p className="work-type">{projectTypes[index]}</p><h3>{project.title}</h3><p className="work-description">{project.description}</p>
+            <div className="work-tags">{project.tags.map(tag => <span key={tag}>{tag}</span>)}</div><div className="work-destination">{project.linkLabel}<span className="sr-only"> (opens in a new tab)</span></div>
+          </a>)}</div>
         </section>
-      </Reveal>
-
-      <Reveal>
-        <section className="cx-section" id="projects">
-          <h2 className="cx-heading"><span className="cx-heading-num">03</span> Projects</h2>
-          <div className="cx-projects">
-            {PROJECTS.map((proj, i) => (
-              <a
-                className="cx-project"
-                key={i}
-                href={proj.link}
-                target="_blank"
-                rel="noreferrer"
-                onMouseMove={spotlight}
-              >
-                <span className="cx-project-icon">{proj.icon}</span>
-                <div className="cx-project-body">
-                  <h3>{proj.title}</h3>
-                  <p>{proj.description}</p>
-                  <div className="cx-project-tags">
-                    {proj.tags.map((tag, j) => (
-                      <span key={j}>{tag}</span>
-                    ))}
-                  </div>
-                </div>
-                <span className="cx-project-arrow">↗</span>
-              </a>
-            ))}
-          </div>
+        <section className="portfolio-section wrap about-section" id="about" aria-labelledby="about-title">
+          <div><p className="eyebrow">02 / A LITTLE ABOUT ME</p><h2 id="about-title">Always learning.<br />Always building.</h2><button className="text-link" onClick={() => setPanel('about')}>More about me ↗</button></div>
+          <div className="about-copy"><p>I'm a computer science student at NUML, a freelance Google Business Profile specialist, and a developer with a growing interest in AI and interactive web experiences.</p><p>From building an appraisal application at FFC to helping clients recover their business profiles, I enjoy turning practical problems into things that work.</p><p>I'm also building <a href="https://sycora.dev" target="_blank" rel="noreferrer">Sycora ↗</a>, a digital engineering and design studio I co-founded with a friend.</p></div>
         </section>
-      </Reveal>
-
-      <footer className="cx-footer">
-        <span>© {new Date().getFullYear()} Ahmed Zafar</span>
-        <button onClick={() => setPanel("contact")}>get in touch →</button>
-      </footer>
-
+        <section className="portfolio-section wrap" id="experience" aria-labelledby="experience-title">
+          <div className="section-heading"><div><p className="eyebrow">03 / THE JOURNEY</p><h2 id="experience-title">Learning through doing.</h2></div></div>
+          <div className="experience-list">{EXPERIENCE.map(exp => <article className="experience-row" key={exp.title}><p className="experience-date">{exp.date}</p><div><h3>{exp.title}</h3><p className="experience-company">{exp.company}</p></div><p className="experience-description">{exp.description}</p></article>)}</div>
+        </section>
+        <section className="portfolio-section wrap" id="skills" aria-labelledby="skills-title">
+          <div className="section-heading"><div><p className="eyebrow">04 / MY TOOLKIT</p><h2 id="skills-title">Tools I build with.</h2></div></div>
+          <div className="toolkit">{Object.entries(SKILLS).map(([category, skills]) => <div className="tool-group" key={category}><h3>{labels[category]}</h3><div>{skills.map(skill => <span key={skill}>{skill}</span>)}</div></div>)}</div>
+        </section>
+        <section className="contact-section wrap" id="contact" aria-labelledby="contact-title"><p className="eyebrow">05 / SAY HELLO</p><div className="contact-heading"><h2 id="contact-title">Have something<br />in mind<span className="accent">?</span></h2><a className="contact-arrow" href={CONTACT[0].href} aria-label="Email Ahmed Zafar">↗</a></div><p>A project, a collaboration, or just a good conversation.</p><a className="email-link" href={CONTACT[0].href}>ahmedzafar21.az@gmail.com ↗</a><div className="social-links">{CONTACT.slice(1).map(contact => <a key={contact.href} href={contact.href} target="_blank" rel="noreferrer">{contact.label.replace(/^\S+\s/, '')} ↗</a>)}</div></section>
+      </main>
+      <footer className="portfolio-footer wrap"><span>© {new Date().getFullYear()} Ahmed Zafar</span><span>Built with curiosity.</span><a href="#top">Back to top ↑</a></footer>
       <InfoModal panelId={panel} onClose={() => setPanel(null)} />
     </div>
   );
-};
-
-export default ClassicSite;
+}

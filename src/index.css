@@ -2013,3 +2013,8 @@ section[id], div[id] {
   .cx-timeline-row { grid-template-columns: 1fr; gap: 6px; }
   .cx-footer { flex-direction: column; gap: 12px; padding: 24px 20px 40px; }
 }
+
+dialog.modal-overlay{border:0;max-width:none;max-height:none;margin:0;padding:20px;color:var(--text);background:transparent;backdrop-filter:none}
+dialog.modal-overlay::backdrop{background:rgba(4,6,12,.8);backdrop-filter:blur(10px)}
+.room-status{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;background:#0b0e14;color:#edf0f7}
+.room-status h1{font-size:2rem}.room-status p{color:#a3adbe}.room-status button{padding:12px 20px;background:#83aaff;color:#10182a;border:0;border-radius:6px;font:inherit;cursor:pointer}
