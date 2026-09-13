@@ -15,13 +15,21 @@ import RoomHUD from "./RoomHUD";
 import InfoModal from "./InfoModal";
 import MobileControls from "./MobileControls";
 
-const isTouchDevice = () =>
+const usesMobileRoomControls = () =>
   typeof window !== "undefined" &&
-  ("ontouchstart" in window || navigator.maxTouchPoints > 0) &&
-  window.matchMedia("(pointer: coarse)").matches;
+  (
+    "ontouchstart" in window ||
+    navigator.maxTouchPoints > 0 ||
+    window.matchMedia("(pointer: coarse)").matches ||
+    window.matchMedia("(max-width: 900px)").matches
+  );
 
 const Scene3D = () => {
-  const isMobile = useMemo(() => isTouchDevice(), []);
+  // Some mobile browsers report a fine/unknown primary pointer, especially
+  // when requesting the desktop site. The old check required both touch and
+  // a coarse pointer, which sent those phones into the desktop pointer-lock
+  // flow and left the enter button apparently unresponsive.
+  const isMobile = useMemo(() => usesMobileRoomControls(), []);
   const [locked, setLocked] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   useEffect(() => {
@@ -57,12 +65,6 @@ const Scene3D = () => {
   const requestLock = useCallback(() => {
     if (isMobile) {
       handleLockChange(true);
-      // Best-effort landscape lock - most mobile browsers only allow the
-      // Screen Orientation API inside fullscreen, and neither is
-      // guaranteed to exist, so every step here is allowed to silently
-      // fail; the CSS rotate-device prompt is the real fallback.
-      document.documentElement.requestFullscreen?.().catch(() => {});
-      screen.orientation?.lock?.("landscape").catch(() => {});
       return;
     }
     // PointerLockControls listens for a click on the canvas/document to

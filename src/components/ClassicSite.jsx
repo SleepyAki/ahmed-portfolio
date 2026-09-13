@@ -18,7 +18,7 @@ export default function ClassicSite({ onEnterRoom }) {
         <nav id="main-nav" className={`portfolio-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation" onClick={() => setMenuOpen(false)} onKeyDown={e => { if (e.key === 'Escape') setMenuOpen(false); }}>
           <a href="#projects">Work</a><a href="#about">About</a><a href="#experience">Experience</a><a href="#contact">Contact ↗</a>
         </nav>
-        <button className="room-link" onClick={onEnterRoom}>Explore my room ↗</button>
+        <button className="room-link" onClick={onEnterRoom} aria-label="Enter my 3D room">Enter my room ↗</button>
       </header>
       <main id="main">
         <section className="portfolio-hero wrap" aria-labelledby="hero-title">
