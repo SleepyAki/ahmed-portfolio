@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { EXPERIENCE, SKILLS, PROJECTS, CONTACT } from '../panels';
-import InfoModal from './InfoModal';
+const InfoModal = lazy(() => import('./InfoModal'));
 import './Portfolio.css';
 
 const labels = { frontend: 'Frontend', backend: 'Backend', graphics_3d: '3D & graphics', ai_tools: 'AI & tools' };
@@ -13,7 +13,7 @@ export default function ClassicSite({ onEnterRoom }) {
     <div className="portfolio" id="top">
       <a className="skip-link" href="#main">Skip to content</a>
       <header className="portfolio-header">
-        <a className="brand" href="#top" aria-label="Ahmed Zafar, home"><img src="/logo6.png" alt="" width="38" height="38" /><span>ahmed<span className="accent">.</span></span></a>
+        <a className="brand" href="#top" aria-label="Ahmed Zafar, home"><img src="/logo6.webp" alt="" width="38" height="38" /><span>ahmed<span className="accent">.</span></span></a>
         <button className="menu-toggle" aria-expanded={menuOpen} aria-controls="main-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? 'Close ×' : 'Menu +'}</button>
         <nav id="main-nav" className={`portfolio-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation" onClick={() => setMenuOpen(false)} onKeyDown={e => { if (e.key === 'Escape') setMenuOpen(false); }}>
           <a href="#projects">Work</a><a href="#about">About</a><a href="#experience">Experience</a><a href="#contact">Contact ↗</a>
@@ -31,7 +31,7 @@ export default function ClassicSite({ onEnterRoom }) {
           </div>
           <aside className="identity-card" aria-label="A little more about me">
             <div className="identity-top"><span>THE PERSON BEHIND THE CODE</span><span aria-hidden="true">↗</span></div>
-            <div className="identity-mark"><img src="/logo6.png" alt="Ahmed Zafar monogram" width="220" height="220" /></div>
+            <div className="identity-mark"><img src="/logo6.webp" alt="Ahmed Zafar monogram" width="220" height="220" /></div>
             <div className="identity-name"><span>SleepyAki</span><span className="identity-handle">@github</span></div>
             <div className="identity-details"><span>CS student at NUML</span><span>Co-founder at Sycora</span></div>
             <button className="identity-room" onClick={onEnterRoom}><span><small>A DIFFERENT WAY TO EXPLORE</small>Step inside my 3D room</span><span aria-hidden="true">↗</span></button>
@@ -61,7 +61,7 @@ export default function ClassicSite({ onEnterRoom }) {
         <section className="contact-section wrap" id="contact" aria-labelledby="contact-title"><p className="eyebrow">05 / SAY HELLO</p><div className="contact-heading"><h2 id="contact-title">Have something<br />in mind<span className="accent">?</span></h2><a className="contact-arrow" href={CONTACT[0].href} aria-label="Email Ahmed Zafar">↗</a></div><p>A project, a collaboration, or just a good conversation.</p><a className="email-link" href={CONTACT[0].href}>ahmedzafar21.az@gmail.com ↗</a><div className="social-links">{CONTACT.slice(1).map(contact => <a key={contact.href} href={contact.href} target="_blank" rel="noreferrer">{contact.label.replace(/^\S+\s/, '')} ↗</a>)}</div></section>
       </main>
       <footer className="portfolio-footer wrap"><span>© {new Date().getFullYear()} Ahmed Zafar</span><span>Built with curiosity.</span><a href="#top">Back to top ↑</a></footer>
-      <InfoModal panelId={panel} onClose={() => setPanel(null)} />
+      {panel && <Suspense fallback={<p role="status">Loading details…</p>}><InfoModal panelId={panel} onClose={() => setPanel(null)} /></Suspense>}
     </div>
   );
 }

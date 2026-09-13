@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import ClassicSite from './components/ClassicSite'
 import MusicPlayer from './components/MusicPlayer'
+import ChatLauncher from './components/ChatLauncher'
 
 const Scene3D = lazy(() => import('./components/Scene3D'))
 
@@ -43,6 +44,7 @@ function App() {
         <button className="classic-toggle-btn" onClick={leaveRoom}>← Back to portfolio</button>
       </> : <ClassicSite onEnterRoom={enterRoom} />}
       <MusicPlayer />
+      <ChatLauncher />
       <Analytics />
       <SpeedInsights />
     </>
