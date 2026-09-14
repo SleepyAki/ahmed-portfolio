@@ -5,6 +5,7 @@ import { SpeedInsights } from '@vercel/speed-insights/react'
 import ClassicSite from './components/ClassicSite'
 import MusicPlayer from './components/MusicPlayer'
 import ChatLauncher from './components/ChatLauncher'
+import { requestMobileRoomMode } from './mobileRoom'
 
 const Scene3D = lazy(() => import('./components/Scene3D'))
 
@@ -22,6 +23,7 @@ function App() {
   const scrollPosition = useRef(0)
   const enterRoom = () => {
     scrollPosition.current = window.scrollY
+    void requestMobileRoomMode()
     setView('room')
     window.scrollTo({ top: 0, behavior: 'instant' })
   }

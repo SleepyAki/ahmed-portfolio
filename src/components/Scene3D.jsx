@@ -14,15 +14,7 @@ import RoomLoader from "./RoomLoader";
 import RoomHUD from "./RoomHUD";
 import InfoModal from "./InfoModal";
 import MobileControls from "./MobileControls";
-
-const usesMobileRoomControls = () =>
-  typeof window !== "undefined" &&
-  (
-    "ontouchstart" in window ||
-    navigator.maxTouchPoints > 0 ||
-    window.matchMedia("(pointer: coarse)").matches ||
-    window.matchMedia("(max-width: 900px)").matches
-  );
+import { requestMobileRoomMode, usesMobileRoomControls } from "../mobileRoom";
 
 const Scene3D = () => {
   // Some mobile browsers report a fine/unknown primary pointer, especially
@@ -65,6 +57,7 @@ const Scene3D = () => {
   const requestLock = useCallback(() => {
     if (isMobile) {
       handleLockChange(true);
+      void requestMobileRoomMode();
       return;
     }
     // PointerLockControls listens for a click on the canvas/document to
