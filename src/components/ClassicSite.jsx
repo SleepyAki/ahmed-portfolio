@@ -4,7 +4,7 @@ const InfoModal = lazy(() => import('./InfoModal'));
 import './Portfolio.css';
 
 const labels = { frontend: 'Frontend', backend: 'Backend', graphics_3d: '3D & graphics', ai_tools: 'AI & tools' };
-const projectTypes = ['AI DEVELOPMENT', 'LOCAL SEARCH', 'WEB APPLICATION'];
+const projectTypes = ['AI DEVELOPMENT', 'LOCAL SEARCH', 'WEB APPLICATION', 'WIX DEVELOPMENT'];
 
 export default function ClassicSite({ onEnterRoom }) {
   const [panel, setPanel] = useState(null);

@@ -63,6 +63,15 @@ export const PROJECTS = [
     linkLabel: "View Project ↗",
     icon: "💻",
   },
+  {
+    title: "Fak Films",
+    description:
+      "Wix website project for a film production company, refined for mobile usability, faster loading, and stronger technical SEO.",
+    tags: ["Wix", "Performance", "SEO"],
+    link: "https://www.fakfilms.com",
+    linkLabel: "Visit Website ↗",
+    icon: "🎬",
+  },
 ];
 
 export const CONTACT = [
